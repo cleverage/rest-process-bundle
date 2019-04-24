@@ -1,0 +1,47 @@
+{
+    "name": "cleverage/rest-process-bundle",
+    "description": "Dedicated bundle for Rest dependencies for the Process Bundle",
+    "keywords": [
+        "process",
+        "task",
+        "etl",
+        "transformation",
+        "import",
+        "export",
+        "rest"
+    ],
+    "homepage": "https://github.com/cleverage/rest-process-bundle",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Vincent Chalnot",
+            "email": "vchalnot@clever-age.com",
+            "homepage": "http://chalnot.fr",
+            "role": "Lead Developer"
+        },
+        {
+            "name": "Valentin Clavreul",
+            "email": "vclavreul@clever-age.com",
+            "role": "Developer"
+        },
+        {
+            "name": "Madeline Veyrenc",
+            "email": "mveyrenc@clever-age.com",
+            "homepage": "https://github.com/mveyrenc",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "CleverAge\\RestProcessBundle\\": ""
+        }
+    },
+    "require": {
+        "cleverage/process-bundle": "3.*|dev-v3.0-dev",
+        "nategood/httpful": ">0.2.0, <1.0.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.4"
+    }
+}
