@@ -1,6 +1,6 @@
 services:
     CleverAge\RestProcessBundle\Transformer\:
-        resource: '../../../Addon/Rest/Transformer/*'
+        resource: '../../../Transformer/*'
         autowire: true
         public: false
         tags:
