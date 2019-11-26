@@ -108,12 +108,17 @@ class Client implements ClientInterface
             ]
         );
 
-        $resolver->setDefault('method', 'GET');
-        $resolver->setDefault('url_parameters', []);
-        $resolver->setDefault('query_parameters', []);
-        $resolver->setDefault('headers', []);
-        $resolver->setDefault('sends', 'json');
-        $resolver->setDefault('expects', 'json');
+        $resolver->setDefaults(
+            [
+                'method' => 'GET',
+                'url_parameters' => [],
+                'query_parameters' => [],
+                'headers' => [],
+                'sends' => 'json',
+                'expects' => 'json',
+                'body' => null,
+            ]
+        );
 
         $resolver->setAllowedTypes('url', ['string']);
         $resolver->setAllowedTypes('method', ['string']);
@@ -157,6 +162,7 @@ class Client implements ClientInterface
         $request = Request::init($options['method']);
         $request->sends($options['sends']);
         $request->expects($options['expects']);
+        $request->body($options['body']);
 
         return $request;
     }

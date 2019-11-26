@@ -56,6 +56,7 @@ class RequestTask extends AbstractConfigurableTask
         $client = $this->registry->getClient($options['client']);
 
         $requestOptions = [
+            'method' => $options['method'],
             'url' => $options['url'],
             'headers' => $options['headers'],
             'url_parameters' => $options['url_parameters'],
