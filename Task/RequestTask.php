@@ -67,7 +67,20 @@ class RequestTask extends AbstractConfigurableTask
 
         $input = $state->getInput() ?: [];
         $requestOptions = array_merge($requestOptions, $input);
+        $this->logger->debug(
+            "Sending request {$options['method']} to '{$options['url']}'",
+            ['requestOptions' => $requestOptions]
+        );
         $result = $client->call($requestOptions);
+        if ($options['log_response']) {
+            $this->logger->debug(
+                "Response received from '{$options['url']}'",
+                [
+                    'requestOptions' => $requestOptions,
+                    'result' => $result,
+                ]
+            );
+        }
 
         // Handle empty results
         if (!\in_array($result->code, $options['valid_response_code'], false)) {
@@ -109,15 +122,22 @@ class RequestTask extends AbstractConfigurableTask
                 'method',
             ]
         );
-        $resolver->setDefault('headers', []);
-        $resolver->setDefault('url_parameters', []);
-        $resolver->setDefault('query_parameters', []);
-        $resolver->setDefault('sends', 'json');
-        $resolver->setDefault('expects', 'json');
-        $resolver->setDefault('valid_response_code', [200]);
+        $resolver->setDefaults(
+            [
+                'headers' => [],
+                'url_parameters' => [],
+                'query_parameters' => [],
+                'sends' => 'json',
+                'expects' => 'json',
+                'valid_response_code' => [200],
+                'log_response' => false,
+            ]
+        );
+
         $resolver->setAllowedTypes('client', ['string']);
         $resolver->setAllowedTypes('url', ['string']);
         $resolver->setAllowedTypes('method', ['string']);
         $resolver->setAllowedTypes('valid_response_code', ['array']);
+        $resolver->setAllowedTypes('log_response', ['bool']);
     }
 }
