@@ -183,8 +183,10 @@ class Client implements ClientInterface
             } else {
                 $parametersString = (string) $options['query_parameters'];
             }
-            $uri .= strpos($uri, '?') ? '&' : '?';
-            $uri .= $parametersString;
+            if ($parametersString) {
+                $uri .= strpos($uri, '?') ? '&' : '?';
+                $uri .= $parametersString;
+            }
         } elseif ($options['query_parameters']) {
             $request->body($options['query_parameters']);
         }
