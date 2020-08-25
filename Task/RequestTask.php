@@ -10,11 +10,15 @@
 
 namespace CleverAge\RestProcessBundle\Task;
 
+use CleverAge\RestProcessBundle\Exception\MissingClientException;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\ProcessBundle\Configuration\TaskConfiguration;
 use CleverAge\ProcessBundle\Model\AbstractConfigurableTask;
 use CleverAge\ProcessBundle\Model\ProcessState;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\OptionsResolver\Exception\AccessException;
+use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
+use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
@@ -24,7 +28,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class RequestTask extends AbstractConfigurableTask
 {
-
     /** @var LoggerInterface */
     protected $logger;
 
@@ -32,9 +35,8 @@ class RequestTask extends AbstractConfigurableTask
     protected $registry;
 
     /**
-     * RequestTask constructor.
-     *
      * @param LoggerInterface $logger
+     * @param ClientRegistry  $registry
      */
     public function __construct(LoggerInterface $logger, ClientRegistry $registry)
     {
@@ -46,32 +48,20 @@ class RequestTask extends AbstractConfigurableTask
      * {@inheritdoc}
      * @param ProcessState $state
      *
-     * @throws \CleverAge\RestProcessBundle\Exception\MissingClientException
-     * @throws \Symfony\Component\OptionsResolver\Exception\ExceptionInterface
+     * @throws MissingClientException
+     * @throws ExceptionInterface
      */
-    public function execute(ProcessState $state)
+    public function execute(ProcessState $state): void
     {
         $options = $this->getOptions($state);
 
-        $client = $this->registry->getClient($options['client']);
+        $requestOptions = $this->getRequestOptions($state);
 
-        $requestOptions = [
-            'method' => $options['method'],
-            'url' => $options['url'],
-            'headers' => $options['headers'],
-            'url_parameters' => $options['url_parameters'],
-            'query_parameters' => $options['query_parameters'],
-            'sends' => $options['sends'],
-            'expects' => $options['expects'],
-        ];
-
-        $input = $state->getInput() ?: [];
-        $requestOptions = array_merge($requestOptions, $input);
         $this->logger->debug(
-            "Sending request {$options['method']} to '{$options['url']}'",
+            "Sending request {$requestOptions['method']} to '{$requestOptions['url']}'",
             ['requestOptions' => $requestOptions]
         );
-        $result = $client->call($requestOptions);
+        $result = $this->registry->getClient($options['client'])->call($requestOptions);
         if ($options['log_response']) {
             $this->logger->debug(
                 "Response received from '{$options['url']}'",
@@ -108,12 +98,12 @@ class RequestTask extends AbstractConfigurableTask
     }
 
     /**
-     * @param \Symfony\Component\OptionsResolver\OptionsResolver $resolver
+     * @param OptionsResolver $resolver
      *
-     * @throws \Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
-     * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
+     * @throws UndefinedOptionsException
+     * @throws AccessException
      */
-    protected function configureOptions(OptionsResolver $resolver)
+    protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired(
             [
@@ -139,5 +129,31 @@ class RequestTask extends AbstractConfigurableTask
         $resolver->setAllowedTypes('method', ['string']);
         $resolver->setAllowedTypes('valid_response_code', ['array']);
         $resolver->setAllowedTypes('log_response', ['bool']);
+    }
+
+    /**
+     * @param ProcessState $state
+     *
+     * @throws ExceptionInterface
+     *
+     * @return array
+     */
+    protected function getRequestOptions(ProcessState $state): array
+    {
+        $options = $this->getOptions($state);
+
+        $requestOptions = [
+            'method' => $options['method'],
+            'url' => $options['url'],
+            'headers' => $options['headers'],
+            'url_parameters' => $options['url_parameters'],
+            'query_parameters' => $options['query_parameters'],
+            'sends' => $options['sends'],
+            'expects' => $options['expects'],
+        ];
+
+        $input = $state->getInput() ?: [];
+
+        return array_merge($requestOptions, $input);
     }
 }
