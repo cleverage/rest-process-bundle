@@ -39,7 +39,8 @@
     },
     "require": {
         "cleverage/process-bundle": "3.*|dev-v3.0-dev",
-        "nategood/httpful": ">0.2.0, <1.0.0"
+        "nategood/httpful": ">0.2.0, <1.0.0",
+        "sidus/base-bundle": "~1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "~6.4"
