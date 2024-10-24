@@ -9,7 +9,7 @@ Compatible with [Symfony stable version and latest Long-Term Support (LTS) relea
 ## Documentation
 
 For usage documentation, see:
-[docs/index.md](doc/index.md)
+[docs/index.md](docs/index.md)
 
 ## Support & Contribution
 
