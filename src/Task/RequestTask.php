@@ -10,11 +10,11 @@
 
 namespace CleverAge\RestProcessBundle\Task;
 
-use CleverAge\RestProcessBundle\Exception\MissingClientException;
-use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\ProcessBundle\Configuration\TaskConfiguration;
 use CleverAge\ProcessBundle\Model\AbstractConfigurableTask;
 use CleverAge\ProcessBundle\Model\ProcessState;
+use CleverAge\RestProcessBundle\Exception\MissingClientException;
+use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;

@@ -10,9 +10,9 @@
 
 namespace CleverAge\RestProcessBundle\Transformer;
 
-use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\ProcessBundle\Exception\TransformerException;
 use CleverAge\ProcessBundle\Transformer\ConfigurableTransformerInterface;
+use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -52,7 +52,7 @@ class RequestTransformer implements ConfigurableTransformerInterface
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
      * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
      * @throws \Symfony\Component\OptionsResolver\Exception\ExceptionInterface
-     * @throws \CleverAge\RestProcessBundle\Exception\MissingClientException
+     * @throws \CleverAge\RestProcessBundle\src\Exception\MissingClientException
      */
     public function transform($value, array $options = [])
     {
