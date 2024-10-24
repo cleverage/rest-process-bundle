@@ -1,3 +1,0 @@
-services:
-    CleverAge\RestProcessBundle\Registry\ClientRegistry:
-        public: false

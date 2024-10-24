@@ -23,7 +23,7 @@ class CleverAgeRestProcessExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container): void
     {
-        $this->findServices($container, __DIR__.'/../Resources/config/services');
+        $this->findServices($container, __DIR__.'/../../config/services');
     }
 
     /**

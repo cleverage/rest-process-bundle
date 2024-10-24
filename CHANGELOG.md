@@ -4,6 +4,11 @@ v2.0
 ## BC breaks
 
 * [#3](https://github.com/cleverage/rest-process-bundle/issues/3) Replace `nategood/httpful` dependency by `symfony/http-client`
+* [#3](https://github.com/cleverage/rest-process-bundle/issues/5) Update Tasks for "symfony/http-client": "^6.4|^7.1"
+* [#4](https://github.com/cleverage/rest-process-bundle/issues/4) Update services according to Symfony best practices. 
+Services should not use autowiring or autoconfiguration. Instead, all services should be defined explicitly.
+Services must be prefixed with the bundle alias instead of using fully qualified class names => `cleverage_rest_process`
+
 
 ### Changes
 
