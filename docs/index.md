@@ -16,7 +16,7 @@ composer require cleverage/rest-process-bundle
 Remember to add the following line to config/bundles.php (not required if Symfony Flex is used)
 
 ```php
-CleverAge\FlysystemProcessBundle\CleverAgeRestProcessBundle::class => ['all' => true],
+CleverAge\RestProcessBundle\CleverAgeRestProcessBundle::class => ['all' => true],
 ```
 
 ## Reference
