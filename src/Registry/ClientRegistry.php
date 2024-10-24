@@ -18,13 +18,11 @@ use CleverAge\RestProcessBundle\Exception\MissingClientException;
 
 /**
  * Holds all tagged rest client services.
- *
- * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
 class ClientRegistry
 {
     /** @var ClientInterface[] */
-    private $clients = [];
+    private array $clients = [];
 
     public function addClient(ClientInterface $client): void
     {
@@ -43,11 +41,9 @@ class ClientRegistry
     }
 
     /**
-     * @param string $code
-     *
      * @throws MissingClientException
      */
-    public function getClient($code): ClientInterface
+    public function getClient(string $code): ClientInterface
     {
         if (!$this->hasClient($code)) {
             throw MissingClientException::create($code);
@@ -56,10 +52,7 @@ class ClientRegistry
         return $this->getClients()[$code];
     }
 
-    /**
-     * @param string $code
-     */
-    public function hasClient($code): bool
+    public function hasClient(string $code): bool
     {
         return \array_key_exists($code, $this->getClients());
     }

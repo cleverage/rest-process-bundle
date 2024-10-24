@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
-/**
- * This file is part of the CleverAge/ProcessBundle package.
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the CleverAge/RestProcessBundle package.
  *
- * Copyright (C) 2017-2019 Clever-Age
+ * Copyright (c) Clever-Age
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -12,49 +15,22 @@ namespace CleverAge\RestProcessBundle\Transformer;
 
 use CleverAge\ProcessBundle\Exception\TransformerException;
 use CleverAge\ProcessBundle\Transformer\ConfigurableTransformerInterface;
+use CleverAge\RestProcessBundle\Exception\MissingClientException;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * Class RequestTransformer
- *
- * @author Madeline Veyrenc <mveyrenc@clever-age.com>
- */
 class RequestTransformer implements ConfigurableTransformerInterface
 {
-
-    /** @var LoggerInterface */
-    protected $logger;
-
-    /** @var ClientRegistry */
-    protected $registry;
-
-    /**
-     * @param LoggerInterface $logger
-     * @param ClientRegistry  $registry
-     */
-    public function __construct(LoggerInterface $logger, ClientRegistry $registry)
+    public function __construct(protected LoggerInterface $logger, protected ClientRegistry $registry)
     {
-        $this->logger = $logger;
-        $this->registry = $registry;
     }
 
     /**
-     * {@inheritdoc}
-     * @throws \Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException
-     * @throws \Symfony\Component\OptionsResolver\Exception\OptionDefinitionException
-     * @throws \Symfony\Component\OptionsResolver\Exception\NoSuchOptionException
-     * @throws \Symfony\Component\OptionsResolver\Exception\MissingOptionsException
-     * @throws \Symfony\Component\OptionsResolver\Exception\InvalidOptionsException
-     * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
-     * @throws \RuntimeException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceCircularReferenceException
-     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
-     * @throws \Symfony\Component\OptionsResolver\Exception\ExceptionInterface
-     * @throws \CleverAge\RestProcessBundle\src\Exception\MissingClientException
+     * @throws MissingClientException
+     * @throws TransformerException
      */
-    public function transform($value, array $options = [])
+    public function transform(mixed $value, array $options = []): string
     {
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
@@ -73,40 +49,40 @@ class RequestTransformer implements ConfigurableTransformerInterface
 
         $input = $value ?: [];
         $requestOptions = array_merge($requestOptions, $input);
-        $result = $client->call($requestOptions);
+        $response = $client->call($requestOptions);
 
         // Handle empty results
-        if (!\in_array($result->code, $options['valid_response_code'], false)) {
+        try {
+            if (!\in_array($response->getStatusCode(), $options['valid_response_code'], false)) {
+                throw new \Exception('Invalid response code');
+            }
+
+            return $response->getContent(false);
+        } catch (\Exception|\Throwable $e) {
             $this->logger->error(
                 'REST request failed',
                 [
                     'client' => $options['client'],
                     'options' => $options,
-                    'raw_headers' => $result->raw_headers,
-                    'raw_body' => $result->raw_body,
+                    'message' => $e->getMessage(),
+                    'raw_headers' => $response->getHeaders(false),
+                    'raw_body' => $response->getContent(false),
                 ]
             );
 
             throw new TransformerException('REST request failed');
         }
-
-        return $result->body;
     }
 
     /**
-     * Returns the unique code to identify the transformer
-     *
-     * @return string
+     * Returns the unique code to identify the transformer.
      */
-    public function getCode()
+    public function getCode(): string
     {
         return 'rest_request';
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired(
             [

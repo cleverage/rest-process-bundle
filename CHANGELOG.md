@@ -3,6 +3,8 @@ v2.0
 
 ## BC breaks
 
+* [#3](https://github.com/cleverage/rest-process-bundle/issues/3) Replace `nategood/httpful` dependency by `symfony/http-client`
+
 ### Changes
 
 * [#1](https://github.com/cleverage/rest-process-bundle/issues/1) Add Makefile & .docker for local standalone usage

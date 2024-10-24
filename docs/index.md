@@ -23,3 +23,5 @@ CleverAge\FlysystemProcessBundle\CleverAgeRestProcessBundle::class => ['all' => 
 
 - Tasks
   - [RequestTask]
+- Transformers
+  - [RequestTransformer]

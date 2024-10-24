@@ -14,24 +14,19 @@ declare(strict_types=1);
 namespace CleverAge\RestProcessBundle\Client;
 
 use CleverAge\RestProcessBundle\Exception\RestRequestException;
-use Httpful\Http;
-use Httpful\Request;
-use Httpful\Response;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
-/**
- * Class AbstractRestClient.
- *
- * @author Madeline Veyrenc <mveyrenc@clever-age.com>
- */
 class Client implements ClientInterface
 {
-    /**
-     * Shopify constructor.
-     */
-    public function __construct(private readonly LoggerInterface $logger, private readonly string $code, private string $uri)
-    {
+    public function __construct(
+        private readonly HttpClientInterface $httpClient,
+        private readonly LoggerInterface $logger,
+        private readonly string $code,
+        private string $uri,
+    ) {
     }
 
     public function getLogger(): LoggerInterface
@@ -55,17 +50,36 @@ class Client implements ClientInterface
     }
 
     /**
-     * @throws \Exception
+     * @throws RestRequestException
      */
-    public function call(array $options = []): Response
+    public function call(array $options = []): ResponseInterface
     {
         $options = $this->getOptions($options);
 
-        $request = $this->initializeRequest($options);
-        $this->setRequestQueryParameters($request, $options);
-        $this->setRequestHeader($request, $options);
+        if (!\in_array(
+            $options['method'],
+            ['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'PATCH'],
+            true
+        )) {
+            throw new RestRequestException(\sprintf('%s is not an HTTP method', $options['method']));
+        }
 
-        return $this->sendRequest($request, $options);
+        try {
+            return $this->httpClient->request(
+                $options['method'],
+                $this->getRequestUri($options),
+                $this->getRequestOptions($options),
+            );
+        } catch (\Exception|\Throwable $e) {
+            $this->logger->error(
+                'Rest request failed',
+                [
+                    'url' => $this->getRequestUri($options),
+                    'error' => $e->getMessage(),
+                ]
+            );
+            throw new RestRequestException('Rest request failed', 0, $e);
+        }
     }
 
     protected function configureOptions(OptionsResolver $resolver): void
@@ -82,8 +96,8 @@ class Client implements ClientInterface
                 'url_parameters' => [],
                 'query_parameters' => [],
                 'headers' => [],
-                'sends' => 'json',
-                'expects' => 'json',
+                'sends' => 'application/json',
+                'expects' => 'application/json',
                 'body' => null,
             ]
         );
@@ -105,79 +119,30 @@ class Client implements ClientInterface
         return $resolver->resolve($options);
     }
 
-    /**
-     * @throws RestRequestException
-     */
-    protected function initializeRequest(array $options = []): Request
+    protected function getRequestUri(array $options = []): string
     {
-        if (!\in_array(
-            $options['method'],
-            [Http::HEAD, Http::GET, Http::POST, Http::PUT, Http::DELETE, Http::OPTIONS, Http::TRACE, Http::PATCH],
-            true
-        )) {
-            throw new RestRequestException(\sprintf('%s is not an HTTP method', $options['method']));
-        }
-        $request = Request::init($options['method']);
-        $request->sends($options['sends']);
-        $request->expects($options['expects']);
-        $request->body($options['body']);
-
-        return $request;
+        return $this->replaceParametersInUri($this->constructUri($options), $options);
     }
 
-    /**
-     * @throws \Exception
-     */
-    protected function setRequestQueryParameters(Request $request, array $options = []): void
+    protected function getRequestOptions(array $options = []): array
     {
-        $uri = $this->constructUri($options);
-        if (Http::GET === $options['method']) {
-            if (\is_array($options['query_parameters'])) {
-                $parametersString = http_build_query($options['query_parameters']);
-            } else {
-                $parametersString = (string) $options['query_parameters'];
-            }
-            if ('' !== $parametersString && '0' !== $parametersString) {
-                $uri .= strpos($uri, '?') ? '&' : '?';
-                $uri .= $parametersString;
-            }
-        } elseif ($options['query_parameters']) {
-            $request->body($options['query_parameters']);
+        $requestOptions = [];
+        $requestOptions['headers'] = empty($options['headers']) ? [] : $options['headers'];
+        if (!empty($options['sends'])) {
+            $requestOptions['headers']['Content-Type'] = $options['sends'];
+        }
+        if (!empty($options['expects'])) {
+            $requestOptions['headers']['Accept'] = $options['expects'];
+        }
+        if ('POST' === $options['method'] && 'application/json' === $options['sends']) {
+            $requestOptions['json'] = $options['body'];
+        } elseif ('GET' === $options['method']) {
+            $requestOptions['query'] = $options['query_parameters'];
+        } else {
+            $requestOptions['body'] = $options['body'];
         }
 
-        $uri = $this->replaceParametersInUri($uri, $options);
-        $request->uri($uri);
-    }
-
-    protected function setRequestHeader(Request $request, array $options = []): void
-    {
-        if ($options['headers']) {
-            $request->addHeaders($options['headers']);
-        }
-    }
-
-    /**
-     * @throws RestRequestException
-     */
-    protected function sendRequest(Request $request, array $options = []): ?Response
-    {
-        try {
-            return $request->send();
-        } catch (\Exception $e) {
-            $this->logger->error(
-                'Rest request failed',
-                [
-                    'url' => $request->uri,
-                    'error' => $e->getMessage(),
-                ]
-            );
-            throw new RestRequestException('Rest request failed', 0, $e);
-        }
-    }
-
-    protected function getApiUrl(): string
-    {
-        return $this->geUri();
+        return $requestOptions;
     }
 
     protected function constructUri(array $options): string
@@ -185,6 +150,11 @@ class Client implements ClientInterface
         $uri = ltrim((string) $options['url'], '/');
 
         return \sprintf('%s/%s', $this->getApiUrl(), $uri);
+    }
+
+    protected function getApiUrl(): string
+    {
+        return $this->geUri();
     }
 
     protected function replaceParametersInUri(string $uri, array $options = []): string

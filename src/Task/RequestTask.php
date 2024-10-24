@@ -20,32 +20,17 @@ use CleverAge\RestProcessBundle\Exception\MissingClientException;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
-use Symfony\Component\OptionsResolver\Exception\ExceptionInterface;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * Class RequestTask.
- *
- * @author Madeline Veyrenc <mveyrenc@clever-age.com>
- */
 class RequestTask extends AbstractConfigurableTask
 {
-    /** @var LoggerInterface */
-    protected $logger;
-
-    /** @var ClientRegistry */
-    protected $registry;
-
-    public function __construct(LoggerInterface $logger, ClientRegistry $registry)
+    public function __construct(protected LoggerInterface $logger, protected ClientRegistry $registry)
     {
-        $this->logger = $logger;
-        $this->registry = $registry;
     }
 
     /**
      * @throws MissingClientException
-     * @throws ExceptionInterface
      */
     public function execute(ProcessState $state): void
     {
@@ -57,40 +42,46 @@ class RequestTask extends AbstractConfigurableTask
             "Sending request {$requestOptions['method']} to '{$requestOptions['url']}'",
             ['requestOptions' => $requestOptions]
         );
-        $result = $this->registry->getClient($options['client'])->call($requestOptions);
+        $response = $this->registry->getClient($options['client'])->call($requestOptions);
         if ($options['log_response']) {
             $this->logger->debug(
                 "Response received from '{$options['url']}'",
                 [
                     'requestOptions' => $requestOptions,
-                    'result' => $result,
+                    'result' => $response,
                 ]
             );
         }
 
         // Handle empty results
-        if (!\in_array($result->code, $options['valid_response_code'], false)) {
+        try {
+            if (!\in_array($response->getStatusCode(), $options['valid_response_code'], false)) {
+                $state->setErrorOutput($response->getContent());
+
+                if (TaskConfiguration::STRATEGY_SKIP === $state->getTaskConfiguration()->getErrorStrategy()) {
+                    $state->setSkipped(true);
+                } elseif (TaskConfiguration::STRATEGY_STOP === $state->getTaskConfiguration()->getErrorStrategy()) {
+                    $state->setStopped(true);
+                }
+
+                throw new \Exception('Invalid response code');
+            }
+
+            $state->setOutput($response->getContent());
+        } catch (\Exception|\Throwable $e) {
             $this->logger->error(
                 'REST request failed',
                 [
                     'client' => $options['client'],
                     'options' => $options,
-                    'raw_headers' => $result->raw_headers,
-                    'raw_body' => $result->raw_body,
+                    'message' => $e->getMessage(),
+                    'raw_headers' => $response->getHeaders(false),
+                    'raw_body' => $response->getContent(false),
                 ]
             );
-            $state->setErrorOutput($result->body);
-
-            if (TaskConfiguration::STRATEGY_SKIP === $state->getTaskConfiguration()->getErrorStrategy()) {
-                $state->setSkipped(true);
-            } elseif (TaskConfiguration::STRATEGY_STOP === $state->getTaskConfiguration()->getErrorStrategy()) {
-                $state->setStopped(true);
-            }
 
             return;
         }
-
-        $state->setOutput($result->body);
     }
 
     /**
@@ -125,9 +116,6 @@ class RequestTask extends AbstractConfigurableTask
         $resolver->setAllowedTypes('log_response', ['bool']);
     }
 
-    /**
-     * @throws ExceptionInterface
-     */
     protected function getRequestOptions(ProcessState $state): array
     {
         $options = $this->getOptions($state);

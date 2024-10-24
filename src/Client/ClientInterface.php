@@ -13,13 +13,8 @@ declare(strict_types=1);
 
 namespace CleverAge\RestProcessBundle\Client;
 
-use Httpful\Response;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
-/**
- * Interface ClientInterface.
- *
- * @author Madeline Veyrenc <mveyrenc@clever-age.com>
- */
 interface ClientInterface
 {
     /**
@@ -27,15 +22,9 @@ interface ClientInterface
      */
     public function getCode(): string;
 
-    /**
-     * Return the URI.
-     */
     public function geUri(): string;
 
-    /**
-     * Set the URI.
-     */
     public function setUri(string $uri): void;
 
-    public function call(array $options = []): Response;
+    public function call(array $options = []): ResponseInterface;
 }
