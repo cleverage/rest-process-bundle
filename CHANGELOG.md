@@ -5,6 +5,10 @@ v2.0
 
 ### Changes
 
+* [#1](https://github.com/cleverage/rest-process-bundle/issues/1) Add Makefile & .docker for local standalone usage
+* [#1](https://github.com/cleverage/rest-process-bundle/issues/1) Add rector, phpstan & php-cs-fixer configurations & apply it
+* [#2](https://github.com/cleverage/rest-process-bundle/issues/2) Remove `sidus/base-bundle` dependency
+
 ### Fixes
 
 v1.0.4

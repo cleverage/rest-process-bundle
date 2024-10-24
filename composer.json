@@ -34,19 +34,18 @@
     ],
     "autoload": {
         "psr-4": {
-            "CleverAge\\FlysystemProcessBundle\\": "src/"
+            "CleverAge\\RestProcessBundle\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "CleverAge\\FlysystemProcessBundle\\Tests\\": "tests/"
+            "CleverAge\\RestProcessBundle\\Tests\\": "tests/"
         }
     },
     "require": {
         "php": ">=8.1",
         "cleverage/process-bundle": "dev-prepare-release",
-        "nategood/httpful": "^1.0.0",
-        "sidus/base-bundle": "~1.0"
+        "nategood/httpful": "^1.0.0"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "*",
