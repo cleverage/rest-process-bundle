@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
-/**
- * This file is part of the CleverAge/ProcessBundle package.
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the CleverAge/RestProcessBundle package.
  *
- * Copyright (C) 2017-2019 Clever-Age
+ * Copyright (c) Clever-Age
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -18,73 +21,41 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class AbstractRestClient
+ * Class AbstractRestClient.
  *
  * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
 class Client implements ClientInterface
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var string */
-    private $code;
-
-    /** @var string */
-    private $uri;
-
     /**
      * Shopify constructor.
-     *
-     * @param LoggerInterface $logger
-     * @param string          $code
-     * @param string          $uri
      */
-    public function __construct(LoggerInterface $logger, string $code, string $uri)
+    public function __construct(private readonly LoggerInterface $logger, private readonly string $code, private string $uri)
     {
-        $this->logger = $logger;
-        $this->code = $code;
-        $this->uri = $uri;
     }
 
-    /**
-     * @return LoggerInterface
-     */
     public function getLogger(): LoggerInterface
     {
         return $this->logger;
     }
 
-    /**
-     * @return string
-     */
     public function getCode(): string
     {
         return $this->code;
     }
 
-    /**
-     * @return string
-     */
     public function geUri(): string
     {
         return $this->uri;
     }
 
-    /**
-     * @param string $uri
-     */
     public function setUri(string $uri): void
     {
         $this->uri = $uri;
     }
 
     /**
-     * @param array $options
-     *
      * @throws \Exception
-     *
-     * @return Response
      */
     public function call(array $options = []): Response
     {
@@ -97,9 +68,6 @@ class Client implements ClientInterface
         return $this->sendRequest($request, $options);
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
     protected function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired(
@@ -129,11 +97,6 @@ class Client implements ClientInterface
         $resolver->setAllowedTypes('headers', ['array']);
     }
 
-    /**
-     * @param array $options
-     *
-     * @return array
-     */
     protected function getOptions(array $options = []): array
     {
         $resolver = new OptionsResolver();
@@ -143,21 +106,16 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param array $options
-     *
      * @throws RestRequestException
-     *
-     * @return Request
-     *
      */
     protected function initializeRequest(array $options = []): Request
     {
-        if (!in_array(
+        if (!\in_array(
             $options['method'],
             [Http::HEAD, Http::GET, Http::POST, Http::PUT, Http::DELETE, Http::OPTIONS, Http::TRACE, Http::PATCH],
             true
         )) {
-            throw new RestRequestException(sprintf('%s is not an HTTP method', $options['method']));
+            throw new RestRequestException(\sprintf('%s is not an HTTP method', $options['method']));
         }
         $request = Request::init($options['method']);
         $request->sends($options['sends']);
@@ -168,22 +126,18 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Request $request
-     * @param array   $options
-     *
-     *
      * @throws \Exception
      */
     protected function setRequestQueryParameters(Request $request, array $options = []): void
     {
         $uri = $this->constructUri($options);
         if (Http::GET === $options['method']) {
-            if (is_array($options['query_parameters'])) {
+            if (\is_array($options['query_parameters'])) {
                 $parametersString = http_build_query($options['query_parameters']);
             } else {
                 $parametersString = (string) $options['query_parameters'];
             }
-            if ($parametersString) {
+            if ('' !== $parametersString && '0' !== $parametersString) {
                 $uri .= strpos($uri, '?') ? '&' : '?';
                 $uri .= $parametersString;
             }
@@ -195,12 +149,6 @@ class Client implements ClientInterface
         $request->uri($uri);
     }
 
-    /**
-     * @param Request $request
-     * @param array   $options
-     *
-     *
-     */
     protected function setRequestHeader(Request $request, array $options = []): void
     {
         if ($options['headers']) {
@@ -209,12 +157,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Request $request
-     * @param array   $options
-     *
      * @throws RestRequestException
-     *
-     * @return Response|null
      */
     protected function sendRequest(Request $request, array $options = []): ?Response
     {
@@ -232,36 +175,21 @@ class Client implements ClientInterface
         }
     }
 
-    /**
-     * @return string
-     */
     protected function getApiUrl(): string
     {
-        return sprintf('%s', $this->geUri());
+        return $this->geUri();
     }
 
-    /**
-     * @param array $options
-     *
-     * @return string
-     */
     protected function constructUri(array $options): string
     {
-        $uri = ltrim($options['url'], '/');
+        $uri = ltrim((string) $options['url'], '/');
 
-        return sprintf('%s/%s', $this->getApiUrl(), $uri);
+        return \sprintf('%s/%s', $this->getApiUrl(), $uri);
     }
 
-    /**
-     * @param string $uri
-     * @param array  $options
-     *
-     * @return string
-     *
-     */
     protected function replaceParametersInUri(string $uri, array $options = []): string
     {
-        if (array_key_exists('url_parameters', $options) && $options['url_parameters']) {
+        if (\array_key_exists('url_parameters', $options) && $options['url_parameters']) {
             $search = array_keys($options['url_parameters']);
             array_walk(
                 $search,

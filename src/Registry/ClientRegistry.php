@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
-/**
- * This file is part of the CleverAge/ProcessBundle package.
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the CleverAge/RestProcessBundle package.
  *
- * Copyright (C) 2017-2019 Clever-Age
+ * Copyright (c) Clever-Age
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -14,7 +17,7 @@ use CleverAge\RestProcessBundle\Client\ClientInterface;
 use CleverAge\RestProcessBundle\Exception\MissingClientException;
 
 /**
- * Holds all tagged rest client services
+ * Holds all tagged rest client services.
  *
  * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
@@ -23,12 +26,9 @@ class ClientRegistry
     /** @var ClientInterface[] */
     private $clients = [];
 
-    /**
-     * @param ClientInterface $client
-     */
     public function addClient(ClientInterface $client): void
     {
-        if (array_key_exists($client->getCode(), $this->getClients())) {
+        if (\array_key_exists($client->getCode(), $this->getClients())) {
             throw new \UnexpectedValueException("Client {$client->getCode()} is already defined");
         }
         $this->clients[$client->getCode()] = $client;
@@ -46,8 +46,6 @@ class ClientRegistry
      * @param string $code
      *
      * @throws MissingClientException
-     *
-     * @return ClientInterface
      */
     public function getClient($code): ClientInterface
     {
@@ -60,11 +58,9 @@ class ClientRegistry
 
     /**
      * @param string $code
-     *
-     * @return bool
      */
     public function hasClient($code): bool
     {
-        return array_key_exists($code, $this->getClients());
+        return \array_key_exists($code, $this->getClients());
     }
 }

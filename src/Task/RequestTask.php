@@ -1,8 +1,11 @@
-<?php declare(strict_types=1);
-/**
- * This file is part of the CleverAge/ProcessBundle package.
+<?php
+
+declare(strict_types=1);
+
+/*
+ * This file is part of the CleverAge/RestProcessBundle package.
  *
- * Copyright (C) 2017-2019 Clever-Age
+ * Copyright (c) Clever-Age
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -22,7 +25,7 @@ use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class RequestTask
+ * Class RequestTask.
  *
  * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
@@ -34,10 +37,6 @@ class RequestTask extends AbstractConfigurableTask
     /** @var ClientRegistry */
     protected $registry;
 
-    /**
-     * @param LoggerInterface $logger
-     * @param ClientRegistry  $registry
-     */
     public function __construct(LoggerInterface $logger, ClientRegistry $registry)
     {
         $this->logger = $logger;
@@ -45,9 +44,6 @@ class RequestTask extends AbstractConfigurableTask
     }
 
     /**
-     * {@inheritdoc}
-     * @param ProcessState $state
-     *
      * @throws MissingClientException
      * @throws ExceptionInterface
      */
@@ -85,9 +81,9 @@ class RequestTask extends AbstractConfigurableTask
             );
             $state->setErrorOutput($result->body);
 
-            if ($state->getTaskConfiguration()->getErrorStrategy() === TaskConfiguration::STRATEGY_SKIP) {
+            if (TaskConfiguration::STRATEGY_SKIP === $state->getTaskConfiguration()->getErrorStrategy()) {
                 $state->setSkipped(true);
-            } elseif ($state->getTaskConfiguration()->getErrorStrategy() === TaskConfiguration::STRATEGY_STOP) {
+            } elseif (TaskConfiguration::STRATEGY_STOP === $state->getTaskConfiguration()->getErrorStrategy()) {
                 $state->setStopped(true);
             }
 
@@ -98,8 +94,6 @@ class RequestTask extends AbstractConfigurableTask
     }
 
     /**
-     * @param OptionsResolver $resolver
-     *
      * @throws UndefinedOptionsException
      * @throws AccessException
      */
@@ -132,11 +126,7 @@ class RequestTask extends AbstractConfigurableTask
     }
 
     /**
-     * @param ProcessState $state
-     *
      * @throws ExceptionInterface
-     *
-     * @return array
      */
     protected function getRequestOptions(ProcessState $state): array
     {
