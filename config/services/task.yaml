@@ -1,0 +1,9 @@
+services:
+    cleverage_rest_process.task.request:
+        class: CleverAge\RestProcessBundle\Task\RequestTask
+        public: false
+        arguments:
+            - '@monolog.logger'
+            - '@cleverage_rest_process.registry.client'
+        tags:
+            - { name: monolog.logger, channel: cleverage_process_task }

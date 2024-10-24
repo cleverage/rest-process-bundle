@@ -1,0 +1,10 @@
+services:
+    cleverage_rest_process.transformer.request:
+        class: CleverAge\RestProcessBundle\Transformer\RequestTransformer
+        public: false
+        arguments:
+            - '@monolog.logger'
+            - '@cleverage_rest_process.registry.client'
+        tags:
+            - { name: cleverage.transformer }
+            - { name: monolog.logger, channel: cleverage_process_transformer }
