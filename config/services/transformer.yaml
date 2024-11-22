@@ -8,3 +8,5 @@ services:
         tags:
             - { name: cleverage.transformer }
             - { name: monolog.logger, channel: cleverage_process_transformer }
+    CleverAge\RestProcessBundle\Transformer\RequestTransformer:
+        alias: cleverage_rest_process.transformer.request
