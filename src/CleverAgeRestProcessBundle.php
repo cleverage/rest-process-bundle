@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace CleverAge\RestProcessBundle;
 
 use CleverAge\ProcessBundle\DependencyInjection\Compiler\RegistryCompilerPass;
-use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
