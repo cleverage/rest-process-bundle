@@ -27,7 +27,7 @@ class CleverAgeRestProcessBundle extends Bundle
     {
         $container->addCompilerPass(
             new RegistryCompilerPass(
-                ClientRegistry::class,
+                'cleverage_rest_process.registry.client',
                 'cleverage.rest.client',
                 'addClient'
             )

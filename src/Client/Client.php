@@ -163,14 +163,16 @@ class Client implements ClientInterface
             $search = array_keys($options['url_parameters']);
             array_walk(
                 $search,
-                static function (&$item) {
+                static function (&$item, $key) {
                     $item = '{'.$item.'}';
                 }
             );
             $replace = array_values($options['url_parameters']);
             array_walk(
                 $replace,
-                'rawurlencode'
+                static function (&$item, $key) {
+                    $item = rawurlencode($item);
+                }
             );
 
             $uri = str_replace($search, $replace, $uri);
