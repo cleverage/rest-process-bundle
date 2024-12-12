@@ -9,6 +9,7 @@ v2.0
 Services should not use autowiring or autoconfiguration. Instead, all services should be defined explicitly.
 Services must be prefixed with the bundle alias instead of using fully qualified class names => `cleverage_rest_process`
 * RequestTask : `query_parameters` option is deprecated, use `data` instead
+* Remove RequestTransformer, use RequestTask instead.
 
 ### Changes
 

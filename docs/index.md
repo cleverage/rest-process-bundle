@@ -23,5 +23,3 @@ CleverAge\RestProcessBundle\CleverAgeRestProcessBundle::class => ['all' => true]
 
 - Tasks
   - [RequestTask](reference/tasks/request_task.md)
-- Transformers
-  - [RequestTransformer]
