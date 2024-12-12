@@ -22,7 +22,22 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
 use Symfony\Component\OptionsResolver\Exception\UndefinedOptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
+/**
+ * @phpstan-type Options array{
+ *      'url': string,
+ *      'method': string,
+ *      'headers': array<mixed>,
+ *      'url_parameters': array<mixed>,
+ *      'sends': string,
+ *      'expects': string,
+ *      'data': array<mixed>|string|null
+ *  }
+ */
 class RequestTask extends AbstractConfigurableTask
 {
     public function __construct(protected LoggerInterface $logger, protected ClientRegistry $registry)
@@ -31,6 +46,11 @@ class RequestTask extends AbstractConfigurableTask
 
     /**
      * @throws MissingClientException
+     * @throws ClientExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws TransportExceptionInterface
+     * @throws \Throwable
      */
     public function execute(ProcessState $state): void
     {
@@ -68,7 +88,7 @@ class RequestTask extends AbstractConfigurableTask
             }
 
             $state->setOutput($response->getContent());
-        } catch (\Exception|\Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->error(
                 'REST request failed',
                 [
@@ -116,6 +136,9 @@ class RequestTask extends AbstractConfigurableTask
         $resolver->setAllowedTypes('log_response', ['bool']);
     }
 
+    /**
+     * @return Options
+     */
     protected function getRequestOptions(ProcessState $state): array
     {
         $options = $this->getOptions($state);

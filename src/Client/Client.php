@@ -19,6 +19,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
+/**
+ * @phpstan-import-type Options from \CleverAge\RestProcessBundle\Task\RequestTask
+ */
 class Client implements ClientInterface
 {
     public function __construct(
@@ -50,6 +53,8 @@ class Client implements ClientInterface
     }
 
     /**
+     * @param Options $options
+     *
      * @throws RestRequestException
      */
     public function call(array $options = []): ResponseInterface
@@ -70,7 +75,7 @@ class Client implements ClientInterface
                 $this->getRequestUri($options),
                 $this->getRequestOptions($options),
             );
-        } catch (\Exception|\Throwable $e) {
+        } catch (\Throwable $e) {
             $this->logger->error(
                 'Rest request failed',
                 [
@@ -110,6 +115,11 @@ class Client implements ClientInterface
         $resolver->setAllowedTypes('data', ['array', 'string', 'null']);
     }
 
+    /**
+     * @param Options $options
+     *
+     * @return Options
+     */
     protected function getOptions(array $options = []): array
     {
         $resolver = new OptionsResolver();
@@ -118,11 +128,24 @@ class Client implements ClientInterface
         return $resolver->resolve($options);
     }
 
+    /**
+     * @param Options $options
+     */
     protected function getRequestUri(array $options = []): string
     {
         return $this->replaceParametersInUri($this->constructUri($options), $options);
     }
 
+    /**
+     * @param Options $options
+     *
+     * @return array{
+     *     'headers': array<mixed>,
+     *     'json'?: array<mixed>|string|null,
+     *     'query'?: array<mixed>|string|null,
+     *     'body'?: array<mixed>|string|null
+     * }
+     */
     protected function getRequestOptions(array $options = []): array
     {
         $requestOptions = [];
@@ -144,6 +167,9 @@ class Client implements ClientInterface
         return $requestOptions;
     }
 
+    /**
+     * @param Options $options
+     */
     protected function constructUri(array $options): string
     {
         $uri = ltrim((string) $options['url'], '/');
@@ -156,9 +182,12 @@ class Client implements ClientInterface
         return $this->geUri();
     }
 
+    /**
+     * @param Options $options
+     */
     protected function replaceParametersInUri(string $uri, array $options = []): string
     {
-        if (\array_key_exists('url_parameters', $options) && $options['url_parameters']) {
+        if ($options['url_parameters']) {
             $search = array_keys($options['url_parameters']);
             array_walk(
                 $search,

@@ -15,6 +15,9 @@ namespace CleverAge\RestProcessBundle\Client;
 
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
+/**
+ * @phpstan-import-type Options from \CleverAge\RestProcessBundle\Task\RequestTask
+ */
 interface ClientInterface
 {
     /**
@@ -26,5 +29,8 @@ interface ClientInterface
 
     public function setUri(string $uri): void;
 
+    /**
+     * @param Options $options
+     */
     public function call(array $options = []): ResponseInterface;
 }
