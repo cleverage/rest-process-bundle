@@ -93,12 +93,11 @@ class Client implements ClientInterface
         $resolver->setDefaults(
             [
                 'method' => 'GET',
-                'url_parameters' => [],
-                'query_parameters' => [],
-                'headers' => [],
                 'sends' => 'application/json',
                 'expects' => 'application/json',
-                'body' => null,
+                'url_parameters' => [],
+                'headers' => [],
+                'data' => null,
             ]
         );
 
@@ -107,8 +106,8 @@ class Client implements ClientInterface
         $resolver->setAllowedTypes('sends', ['string']);
         $resolver->setAllowedTypes('expects', ['string']);
         $resolver->setAllowedTypes('url_parameters', ['array']);
-        $resolver->setAllowedTypes('query_parameters', ['array']);
         $resolver->setAllowedTypes('headers', ['array']);
+        $resolver->setAllowedTypes('data', ['array', 'string', 'null']);
     }
 
     protected function getOptions(array $options = []): array
@@ -135,11 +134,11 @@ class Client implements ClientInterface
             $requestOptions['headers']['Accept'] = $options['expects'];
         }
         if ('POST' === $options['method'] && 'application/json' === $options['sends']) {
-            $requestOptions['json'] = $options['body'];
+            $requestOptions['json'] = $options['data'];
         } elseif ('GET' === $options['method']) {
-            $requestOptions['query'] = $options['query_parameters'];
+            $requestOptions['query'] = $options['data'];
         } else {
-            $requestOptions['body'] = $options['body'];
+            $requestOptions['body'] = $options['data'];
         }
 
         return $requestOptions;

@@ -80,7 +80,7 @@ class RequestTask extends AbstractConfigurableTask
                 ]
             );
 
-            return;
+            throw $e;
         }
     }
 
@@ -101,9 +101,9 @@ class RequestTask extends AbstractConfigurableTask
             [
                 'headers' => [],
                 'url_parameters' => [],
-                'query_parameters' => [],
-                'sends' => 'json',
-                'expects' => 'json',
+                'data' => null,
+                'sends' => 'application/json',
+                'expects' => 'application/json',
                 'valid_response_code' => [200],
                 'log_response' => false,
             ]
@@ -121,13 +121,13 @@ class RequestTask extends AbstractConfigurableTask
         $options = $this->getOptions($state);
 
         $requestOptions = [
-            'method' => $options['method'],
             'url' => $options['url'],
+            'method' => $options['method'],
             'headers' => $options['headers'],
             'url_parameters' => $options['url_parameters'],
-            'query_parameters' => $options['query_parameters'],
             'sends' => $options['sends'],
             'expects' => $options['expects'],
+            'data' => $options['data'],
         ];
 
         $input = $state->getInput() ?: [];
