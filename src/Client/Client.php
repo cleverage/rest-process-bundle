@@ -20,7 +20,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
- * @phpstan-import-type Options from \CleverAge\RestProcessBundle\Task\RequestTask
+ * @phpstan-import-type RequestOptions from \CleverAge\RestProcessBundle\Task\RequestTask
  */
 class Client implements ClientInterface
 {
@@ -53,7 +53,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Options $options
+     * @param RequestOptions $options
      *
      * @throws RestRequestException
      */
@@ -116,20 +116,23 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Options $options
+     * @param RequestOptions $options
      *
-     * @return Options
+     * @return RequestOptions
      */
     protected function getOptions(array $options = []): array
     {
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
 
-        return $resolver->resolve($options);
+        /** @var RequestOptions $resolved */
+        $resolved = $resolver->resolve($options);
+
+        return $resolved;
     }
 
     /**
-     * @param Options $options
+     * @param RequestOptions $options
      */
     protected function getRequestUri(array $options = []): string
     {
@@ -137,7 +140,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Options $options
+     * @param RequestOptions $options
      *
      * @return array{
      *     'headers': array<mixed>,
@@ -168,7 +171,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Options $options
+     * @param RequestOptions $options
      */
     protected function constructUri(array $options): string
     {
@@ -183,11 +186,12 @@ class Client implements ClientInterface
     }
 
     /**
-     * @param Options $options
+     * @param RequestOptions $options
      */
     protected function replaceParametersInUri(string $uri, array $options = []): string
     {
         if ($options['url_parameters']) {
+            /** @var array<string> $search */
             $search = array_keys($options['url_parameters']);
             array_walk(
                 $search,
@@ -195,6 +199,7 @@ class Client implements ClientInterface
                     $item = '{'.$item.'}';
                 }
             );
+            /** @var array<string> $replace */
             $replace = array_values($options['url_parameters']);
             array_walk(
                 $replace,

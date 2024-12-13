@@ -29,6 +29,18 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 /**
  * @phpstan-type Options array{
+ *      'client': string,
+ *      'url': string,
+ *      'method': string,
+ *      'headers': array<mixed>,
+ *      'url_parameters': array<mixed>,
+ *      'data': array<mixed>|string|null,
+ *      'sends': string,
+ *      'expects': string,
+ *      'valid_response_code': array<int>,
+ *      'log_response': bool,
+ * }
+ * @phpstan-type RequestOptions array{
  *      'url': string,
  *      'method': string,
  *      'headers': array<mixed>,
@@ -36,7 +48,7 @@ use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
  *      'sends': string,
  *      'expects': string,
  *      'data': array<mixed>|string|null
- *  }
+ * }
  */
 class RequestTask extends AbstractConfigurableTask
 {
@@ -54,6 +66,7 @@ class RequestTask extends AbstractConfigurableTask
      */
     public function execute(ProcessState $state): void
     {
+        /** @var Options $options */
         $options = $this->getOptions($state);
 
         $requestOptions = $this->getRequestOptions($state);
@@ -137,10 +150,11 @@ class RequestTask extends AbstractConfigurableTask
     }
 
     /**
-     * @return Options
+     * @return RequestOptions
      */
     protected function getRequestOptions(ProcessState $state): array
     {
+        /** @var Options $options */
         $options = $this->getOptions($state);
 
         $requestOptions = [
@@ -153,8 +167,12 @@ class RequestTask extends AbstractConfigurableTask
             'data' => $options['data'],
         ];
 
+        /** @var array<mixed> $input */
         $input = $state->getInput() ?: [];
 
-        return array_merge($requestOptions, $input);
+        /** @var RequestOptions $mergedOptions */
+        $mergedOptions = array_merge($requestOptions, $input);
+
+        return $mergedOptions;
     }
 }
