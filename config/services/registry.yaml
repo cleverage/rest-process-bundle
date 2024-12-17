@@ -1,0 +1,4 @@
+services:
+    cleverage_rest_process.registry.client:
+        class: CleverAge\RestProcessBundle\Registry\ClientRegistry
+        public: false

@@ -1,8 +1,0 @@
-services:
-    CleverAge\RestProcessBundle\Transformer\:
-        resource: '../../../Transformer/*'
-        autowire: true
-        public: false
-        tags:
-            - { name: cleverage.transformer }
-            - { name: monolog.logger, channel: cleverage_process_transformer }
