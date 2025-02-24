@@ -137,7 +137,7 @@ class RequestTask extends AbstractConfigurableTask
                 'data' => null,
                 'sends' => 'application/json',
                 'expects' => 'application/json',
-                'valid_response_code' => [200],
+                'valid_response_code' => [200, 201, 204],
                 'log_response' => false,
             ]
         );

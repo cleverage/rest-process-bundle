@@ -41,7 +41,7 @@ Options
 | `data`                | `array`, `string` or `null` |          | `null`             | Treated as `body`, `query` or `json` on HttpClient, depending on `method` and `sends`    |
 | `sends`               | `string`                    |          | `application/json` | `Content-Type` header, if value is not empty                                             |
 | `expects`             | `string`                    |          | `application/json` | `Accept` header, if value is not empty                                                   |
-| `valid_response_code` | `array`                     |          | `[200]`            | One or more [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)  |
+| `valid_response_code` | `array`                     |          | `[200, 201, 204]`  | One or more [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)  |
 | `log_response`        | `bool`                      |          | `false`            |                                                                                          |
 
 Examples
