@@ -159,7 +159,7 @@ class Client implements ClientInterface
         if (!empty($options['expects'])) {
             $requestOptions['headers']['Accept'] = $options['expects'];
         }
-        if ('POST' === $options['method'] && 'application/json' === $options['sends']) {
+        if (\in_array($options['method'], ['POST', 'PATCH', 'PUT']) && 'application/json' === $options['sends']) {
             $requestOptions['json'] = $options['data'];
         } elseif ('GET' === $options['method']) {
             $requestOptions['query'] = $options['data'];
