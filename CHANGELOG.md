@@ -1,3 +1,15 @@
+v2.1
+------
+
+### Changes
+
+* [#10](https://github.com/cleverage/rest-process-bundle/issues/10) Add 201 and 204 to valid_response_code
+* [#14](https://github.com/cleverage/rest-process-bundle/issues/14) Add request_options on RequestTask error log
+
+### Fixes
+
+* [#12](https://github.com/cleverage/rest-process-bundle/issues/12) PUT and PATCH with send: application/json must be send as json.
+
 v2.0
 ------
 
