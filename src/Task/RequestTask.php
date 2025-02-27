@@ -107,6 +107,7 @@ class RequestTask extends AbstractConfigurableTask
                 [
                     'client' => $options['client'],
                     'options' => $options,
+                    'request_options' => $requestOptions,
                     'message' => $e->getMessage(),
                     'raw_headers' => $response->getHeaders(false),
                     'raw_body' => $response->getContent(false),
