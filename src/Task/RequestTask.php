@@ -89,7 +89,7 @@ class RequestTask extends AbstractConfigurableTask
         // Handle empty results
         try {
             if (!\in_array($response->getStatusCode(), $options['valid_response_code'], false)) {
-                $state->setErrorOutput($response->getContent());
+                $state->setErrorOutput($response->getContent(false));
 
                 if (TaskConfiguration::STRATEGY_SKIP === $state->getTaskConfiguration()->getErrorStrategy()) {
                     $state->setSkipped(true);
@@ -102,17 +102,31 @@ class RequestTask extends AbstractConfigurableTask
 
             $state->setOutput($response->getContent());
         } catch (\Throwable $e) {
-            $this->logger->error(
-                'REST request failed',
-                [
-                    'client' => $options['client'],
-                    'options' => $options,
-                    'request_options' => $requestOptions,
-                    'message' => $e->getMessage(),
-                    'raw_headers' => $response->getHeaders(false),
-                    'raw_body' => $response->getContent(false),
-                ]
-            );
+            $allowRedirectionException = false;
+            $allowClientException = false;
+            foreach ($options['valid_response_code'] as $code) {
+                if ($code >= 300 && $code < 400) {
+                    $allowRedirectionException = true;
+                }
+                if ($code >= 400 && $code < 500) {
+                    $allowClientException = true;
+                }
+            }
+            if (!($allowRedirectionException && $e instanceof RedirectionExceptionInterface)
+                && !($allowClientException && $e instanceof ClientExceptionInterface)
+            ) {
+                $this->logger->error(
+                    'REST request failed',
+                    [
+                        'client' => $options['client'],
+                        'options' => $options,
+                        'request_options' => $requestOptions,
+                        'message' => $e->getMessage(),
+                        'raw_headers' => $response->getHeaders(false),
+                        'raw_body' => $response->getContent(false),
+                    ]
+                );
+            }
 
             throw $e;
         }
