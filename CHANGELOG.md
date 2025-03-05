@@ -1,3 +1,13 @@
+v2.2
+------
+
+### Changes
+* [#17](https://github.com/cleverage/rest-process-bundle/issues/17) Improve errors handling using valid_response_code.
+  Allow ClientExceptionInterface if valid_response_code between 400 & 499 exists. Allow RedirectionExceptionInterface if valid_response_code between 300 & 399 exists.
+
+### Fixes 
+* [#16](https://github.com/cleverage/rest-process-bundle/issues/16) Add missing shared: false on tasks
+
 v2.1
 ------
 
