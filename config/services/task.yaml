@@ -2,6 +2,7 @@ services:
     cleverage_rest_process.task.request:
         class: CleverAge\RestProcessBundle\Task\RequestTask
         public: false
+        shared: false
         arguments:
             - '@logger'
             - '@cleverage_rest_process.registry.client'
