@@ -1,3 +1,9 @@
+v2.3
+------
+
+### Changes
+* [#20](https://github.com/cleverage/rest-process-bundle/issues/20) Upgrade to Symfony 7.3 & PHP 8.4
+
 v2.2
 ------
 
