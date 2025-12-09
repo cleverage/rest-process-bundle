@@ -51,7 +51,7 @@
     "require": {
         "php": ">=8.2",
         "cleverage/process-bundle": "^5.0",
-        "symfony/http-client": "^6.4|^7.4|^8"
+        "symfony/http-client": "^6.4 || ^7.4 || ^8"
     },
     "require-dev": {
         "friendsofphp/php-cs-fixer": "*",
