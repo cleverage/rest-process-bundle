@@ -1,3 +1,12 @@
+v3.0
+------
+
+### Changes
+* [#22](https://github.com/cleverage/rest-process-bundle/issues/22) Add support for PHP 8.5 and Symfony 8.* Update phpunit/phpunit to version >10.0 Bump version to cleverage/process-bundle ^5.0
+
+### BC breaks
+* [#22](https://github.com/cleverage/rest-process-bundle/issues/22) Remove support for PHP 8.1 and Symfony 7.3
+
 v2.3
 ------
 
