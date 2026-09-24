@@ -112,8 +112,8 @@ class RequestTask extends AbstractConfigurableTask
                     $allowClientException = true;
                 }
             }
-            if (!($allowRedirectionException && $e instanceof RedirectionExceptionInterface)
-                && !($allowClientException && $e instanceof ClientExceptionInterface)
+            if ((!$allowRedirectionException || !$e instanceof RedirectionExceptionInterface)
+                && (!$allowClientException || !$e instanceof ClientExceptionInterface)
             ) {
                 $this->logger->error(
                     'REST request failed',
