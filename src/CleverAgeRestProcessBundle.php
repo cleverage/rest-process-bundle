@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace CleverAge\RestProcessBundle;
 
-use CleverAge\ProcessBundle\DependencyInjection\Compiler\RegistryCompilerPass;
+use CleverAge\RestProcessBundle\DependencyInjection\Compiler\RegisterClientsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -24,13 +24,7 @@ class CleverAgeRestProcessBundle extends Bundle
      */
     public function build(ContainerBuilder $container): void
     {
-        $container->addCompilerPass(
-            new RegistryCompilerPass(
-                'cleverage_rest_process.registry.client',
-                'cleverage.rest.client',
-                'addClient'
-            )
-        );
+        $container->addCompilerPass(new RegisterClientsPass());
     }
 
     #[\Override]

@@ -69,8 +69,10 @@ Registration
 ------------
 
 Every service tagged `cleverage.rest.client` is added to the registry (a compiler pass calls
-`ClientRegistry::addClient()` for each of them). Two clients with the same code throw an `UnexpectedValueException`
-(`Client <code> is already defined`) when the registry is instantiated; a task referencing an unknown code throws a
+`ClientRegistry::addClient()` for each of them, with the service id). Two clients with the same code throw an
+`UnexpectedValueException` giving the ids of both services
+(`Client <code> is already defined by service "<id>", cannot register service "<id>"`) when the registry is
+instantiated; a task referencing an unknown code throws a
 `CleverAge\RestProcessBundle\Exception\MissingClientException` (`No rest client with code : <code>`).
 
 Implementing a client
