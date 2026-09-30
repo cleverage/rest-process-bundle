@@ -3,6 +3,7 @@ Latest
 
 ### Changes
 * [#28](https://github.com/cleverage/rest-process-bundle/issues/28) Update quality stack: use Rector `withComposerBased()` sets (removed `SYMFONY_64` / `PHPUNIT_100` sets), declare used Symfony packages and PHPUnit range in composer.json, apply quality tools fixes
+* [#30](https://github.com/cleverage/rest-process-bundle/issues/30) Add missing documentations: REST client reference page, complete RequestTask reference, cookbooks. Harmonize and fix existing documentation.
 
 v3.0
 ------

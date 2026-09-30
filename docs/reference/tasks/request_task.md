@@ -1,90 +1,172 @@
 RequestTask
-===============
+===========
 
-Call a Rest Request and get result.
+Sends an HTTP request through a registered [REST client](../client.md) and outputs the raw response body.
+
+The request is built from the task options, optionally overridden by the input: this allows calling the same endpoint
+for each item of a flow (e.g. one `PUT` per CSV line) with a different URL, parameters or payload.
 
 Task reference
 --------------
 
-* **Client Service Interface**: `CleverAge\RestProcessBundle\Client\ClientInterface`
-* **Task Service**: `CleverAge\RestProcessBundle\Task\RequestTask`
+* **Service**: `CleverAge\RestProcessBundle\Task\RequestTask`
 
 Accepted inputs
 ---------------
 
-`array`: inputs are merged with task defined options.
+`array` or empty value (`null`, `[]`...): request options overriding the task options (shallow merge, the input wins).
+Allowed keys are `url`, `method`, `headers`, `url_parameters`, `sends`, `expects` and `data`: any other key is passed to
+the client, which rejects it (the default client throws an `UndefinedOptionsException`).
 
 Possible outputs
 ----------------
 
-`string`: the result content of the rest call.
+`string`: the body of the response (empty string for a `204 No Content`), as returned by
+`Symfony\Contracts\HttpClient\ResponseInterface::getContent()`. It is not decoded: chain a
+[DeserializerTask](https://github.com/cleverage/process-bundle/blob/main/docs/reference/tasks/deserializer_task.md) or a
+[TransformerTask](https://github.com/cleverage/process-bundle/blob/main/docs/reference/tasks/transformer_task.md) to
+decode it.
+
+When the status code is not in `valid_response_code`, the raw response body is sent to the `error_outputs` (see
+[Notes](#notes)).
 
 Options
 -------
 
-### For Client
+| Code                  | Type                      | Required | Default            | Description                                                                                                                                    |
+|-----------------------|---------------------------|:--------:|--------------------|------------------------------------------------------------------------------------------------------------------------------------------------|
+| `client`              | `string`                  |  **X**   |                    | Code of the [REST client](../client.md) to use (value returned by its `getCode()`)                                                             |
+| `url`                 | `string`                  |  **X**   |                    | Path of the endpoint, appended to the client base URI (a leading `/` is optional). May contain `{placeholders}` replaced by `url_parameters`   |
+| `method`              | `string`                  |  **X**   |                    | HTTP method, in uppercase, among `HEAD`, `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`, `PATCH` (checked by the default client)          |
+| `headers`             | `array`                   |          | `[]`               | HTTP headers, as `name => value`                                                                                                               |
+| `url_parameters`      | `array`                   |          | `[]`               | List of `placeholder => value`: each `{placeholder}` of the URL is replaced by the URL-encoded value (values must be strings)                  |
+| `data`                | `array`, `string`, `null` |          | `null`             | Payload of the request, sent as JSON body, query string or raw body depending on `method` and `sends` (see [REST client](../client.md#request-options)) |
+| `sends`               | `string`                  |          | `application/json` | Value of the `Content-Type` header (not sent if empty)                                                                                         |
+| `expects`             | `string`                  |          | `application/json` | Value of the `Accept` header (not sent if empty)                                                                                               |
+| `valid_response_code` | `array`                   |          | `[200, 201, 204]`  | List of the [HTTP status codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) considered as a success                               |
+| `log_response`        | `bool`                    |          | `false`            | Log the request options and the response object (`debug` level) once the response is received                                                 |
 
-| Code   | Type     | Required | Default | Description                                    |
-|--------|----------|:--------:|---------|------------------------------------------------|
-| `code` | `string` |  **X**   |         | Service identifier, used by Task client option |
-| `uri`  | `string` |  **X**   |         | Base uri, concatenated with Task `url`         |
-
-### For Task
-
-| Code                  | Type                        | Required | Default            | Description                                                                              |
-|-----------------------|-----------------------------|:--------:|--------------------|------------------------------------------------------------------------------------------|
-| `client`              | `string`                    |  **X**   |                    | `ClientInterface` service identifier                                                     |
-| `url`                 | `string`                    |  **X**   |                    | Relative url to call                                                                     |
-| `method`              | `string`                    |  **X**   |                    | HTTP method from `['HEAD', 'GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'TRACE', 'PATCH']` |
-| `headers`             | `array`                     |          | `[]`               |                                                                                          |
-| `url_parameters`      | `array`                     |          | `[]`               | Search/Replace data on `url`                                                             |
-| `data`                | `array`, `string` or `null` |          | `null`             | Treated as `body`, `query` or `json` on HttpClient, depending on `method` and `sends`    |
-| `sends`               | `string`                    |          | `application/json` | `Content-Type` header, if value is not empty                                             |
-| `expects`             | `string`                    |          | `application/json` | `Accept` header, if value is not empty                                                   |
-| `valid_response_code` | `array`                     |          | `[200, 201, 204]`  | One or more [HTTP status code](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes)  |
-| `log_response`        | `bool`                      |          | `false`            |                                                                                          |
+Options are resolved once per process execution: [contextual values](https://github.com/cleverage/process-bundle/blob/main/docs/01-quick_start.md#contextual-values)
+like `'{{ code }}'` (passed with `-c code:"'value'"`) are allowed in any option. Use the input to change the request for
+each item.
 
 Examples
 --------
 
-### Client
+* `GET` with a URL parameter taken from the process context
+  - run with `bin/console cleverage:process:execute <process> -c codePostal:"'46800'"`
+  - requests `https://apicarto.ign.fr/api/codes-postaux/communes/46800` with the client below
 
 ```yaml
 services:
   app.cleverage_rest_process.client.apicarto_ign:
     class: CleverAge\RestProcessBundle\Client\Client
-    bind:
-      $code: 'domain_sample'
-      $uri: 'https://domain/api'
+    arguments:
+      $httpClient: '@http_client'
+      $logger: '@logger'
+      $code: 'apicarto_ign'
+      $uri: 'https://apicarto.ign.fr/api'
     tags:
       - { name: cleverage.rest.client }
-```  
-
-### Task
-
-```yaml
-# Task configuration level
-code:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
-  error_strategy: 'stop'
-  options:
-    client: domain_sample
-    url: '/sample/{parameter}'
-    method: 'GET'
-    url_parameters: { parameter: '{{ parameter }}' }
 ```
 
 ```yaml
 # Task configuration level
-code:
+entry:
   service: '@CleverAge\RestProcessBundle\Task\RequestTask'
-  error_strategy: 'stop'
+  error_strategy: stop
+  options:
+    client: apicarto_ign
+    url: '/codes-postaux/communes/{codePostal}'
+    method: GET
+    url_parameters: { codePostal: '{{ codePostal }}' }
+  outputs: [deserialize]
+```
+
+* `GET` with query string parameters
+  - requests `https://domain/api/books?page=2&limit=50`
+
+```yaml
+# Task configuration level
+list_books:
+  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
   options:
     client: domain_sample
-    url: '/sample'
-    method: 'POST'
-    data: # May be a json string or an array
-      parameter_1:
-        parameter_11: "eleven"
-        array: [-1, 666]
+    url: '/books'
+    method: GET
+    data:
+      page: 2
+      limit: 50
+  outputs: [deserialize]
 ```
+
+* `POST` with a JSON body
+  - `data` is JSON-encoded because the method is `POST` and `sends` is `application/json`
+
+```yaml
+# Task configuration level
+entry:
+  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  error_strategy: stop
+  options:
+    client: apicarto_ign
+    url: '/aoc/appellation-viticole'
+    method: POST
+    data:
+      geom:
+        type: Point
+        coordinates: [-1.691634, 48.104237]
+  outputs: [deserialize]
+```
+
+* `POST` of a form, with an authentication header
+  - `data` is sent as an `application/x-www-form-urlencoded` body
+
+```yaml
+# Task configuration level
+get_token:
+  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  options:
+    client: domain_sample
+    url: '/oauth/token'
+    method: POST
+    sends: 'application/x-www-form-urlencoded'
+    headers:
+      Authorization: 'Basic {{ credentials }}'
+    data:
+      grant_type: client_credentials
+  outputs: [deserialize]
+```
+
+* Request overridden by the input
+  - the previous task outputs `{url_parameters: {id: '42'}, data: {title: 'New title'}}`
+  - requests `PUT https://domain/api/books/42` with the JSON body `{"title": "New title"}`
+  - a `404 Not Found` is logged and the item is skipped, the process goes on with the next one
+
+```yaml
+# Task configuration level
+update_book:
+  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  error_strategy: skip
+  options:
+    client: domain_sample
+    url: '/books/{id}'
+    method: PUT
+  error_outputs: [log_error] # Receives the raw response body
+```
+
+Notes
+-----
+
+* The input is merged with `array_merge()`: an input key replaces the whole option (e.g. an input `url_parameters`
+  replaces the configured `url_parameters`, it is not merged with it). `client`, `valid_response_code` and
+  `log_response` cannot be overridden by the input.
+* When the status code is not in `valid_response_code`, the task sets the raw response body as error output, then
+  fails with an `Invalid response code` exception, logged with the response headers and body. The process then follows
+  the task `error_strategy`: `skip` goes on with the next item, `stop` stops the process.
+* The response content is read with `getContent()`, which throws for `3xx`, `4xx` and `5xx` status codes: adding
+  such a code to `valid_response_code` only prevents the error log, the task still fails. Redirections are followed by
+  the HTTP client, so a `3xx` status is only received when redirections are disabled or exceeded.
+* A transport error (DNS failure, timeout...) or an unknown `method` makes the task fail as well.
+* A `client` that is not registered throws a `CleverAge\RestProcessBundle\Exception\MissingClientException`
+  (`No rest client with code : <code>`) on the first execution of the task.
