@@ -1,6 +1,9 @@
 Latest
 ------
 
+v3.2
+------
+
 ### Changes
 * [#31](https://github.com/cleverage/rest-process-bundle/issues/31) Add missing tests: RequestTask and Client with a mocked HTTP client, MissingClientException, bundle and DI extension.
 * [#39](https://github.com/cleverage/rest-process-bundle/issues/39) Add `Client::getUri()`, deprecate the misspelled `geUri()`; type `MissingClientException::create()`. Update documentation, add tests.
