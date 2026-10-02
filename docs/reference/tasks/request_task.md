@@ -16,13 +16,14 @@ Accepted inputs
 
 `array` or empty value (`null`, `[]`...): request options overriding the task options (shallow merge, the input wins).
 Allowed keys are `url`, `method`, `headers`, `url_parameters`, `sends`, `expects` and `data`: any other key is passed to
-the client, which rejects it (the default client throws an `UndefinedOptionsException`).
+the client, which rejects it (the default client throws an `UndefinedOptionsException`). Any other non-empty input
+(e.g. a `string`) throws an `\UnexpectedValueException`.
 
 Possible outputs
 ----------------
 
 `string`: the body of the response (empty string for a `204 No Content`), as returned by
-`Symfony\Contracts\HttpClient\ResponseInterface::getContent()`. It is not decoded: chain a
+`Symfony\Contracts\HttpClient\ResponseInterface::getContent(false)`. It is not decoded: chain a
 [DeserializerTask](https://github.com/cleverage/process-bundle/blob/main/docs/reference/tasks/deserializer_task.md) or a
 [TransformerTask](https://github.com/cleverage/process-bundle/blob/main/docs/reference/tasks/transformer_task.md) to
 decode it.
@@ -39,12 +40,12 @@ Options
 | `url`                 | `string`                  |  **X**   |                    | Path of the endpoint, appended to the client base URI (a leading `/` is optional). May contain `{placeholders}` replaced by `url_parameters`   |
 | `method`              | `string`                  |  **X**   |                    | HTTP method, in uppercase, among `HEAD`, `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`, `PATCH` (checked by the default client)          |
 | `headers`             | `array`                   |          | `[]`               | HTTP headers, as `name => value`                                                                                                               |
-| `url_parameters`      | `array`                   |          | `[]`               | List of `placeholder => value`: each `{placeholder}` of the URL is replaced by the URL-encoded value (values must be strings)                  |
+| `url_parameters`      | `array`                   |          | `[]`               | List of `placeholder => value`: each `{placeholder}` of the URL is replaced by the URL-encoded value (scalar values, converted to strings)     |
 | `data`                | `array`, `string`, `null` |          | `null`             | Payload of the request, sent as JSON body, query string or raw body depending on `method` and `sends` (see [REST client](../client.md#request-options)) |
 | `sends`               | `string`                  |          | `application/json` | Value of the `Content-Type` header (not sent if empty)                                                                                         |
 | `expects`             | `string`                  |          | `application/json` | Value of the `Accept` header (not sent if empty)                                                                                               |
 | `valid_response_code` | `array`                   |          | `[200, 201, 204]`  | List of the [HTTP status codes](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes) considered as a success                               |
-| `log_response`        | `bool`                    |          | `false`            | Log the request options and the response object (`debug` level) once the response is received                                                 |
+| `log_response`        | `bool`                    |          | `false`            | Log the requested URL, the request options, and the status code, headers and content of the response (`debug` level)                           |
 
 Options are resolved once per process execution: [contextual values](https://github.com/cleverage/process-bundle/blob/main/docs/01-quick_start.md#contextual-values)
 like `'{{ code }}'` (passed with `-c code:"'value'"`) are allowed in any option. Use the input to change the request for
@@ -164,9 +165,10 @@ Notes
 * When the status code is not in `valid_response_code`, the task sets the raw response body as error output, then
   fails with an `Invalid response code` exception, logged with the response headers and body. The process then follows
   the task `error_strategy`: `skip` goes on with the next item, `stop` stops the process.
-* The response content is read with `getContent()`, which throws for `3xx`, `4xx` and `5xx` status codes: adding
-  such a code to `valid_response_code` only prevents the error log, the task still fails. Redirections are followed by
-  the HTTP client, so a `3xx` status is only received when redirections are disabled or exceeded.
-* A transport error (DNS failure, timeout...) or an unknown `method` makes the task fail as well.
+* A `3xx`, `4xx` or `5xx` status code listed in `valid_response_code` is handled as a success: the response body is
+  output. Redirections are followed by the HTTP client, so a `3xx` status is only received when redirections are
+  disabled or exceeded.
+* A transport error (DNS failure, timeout...) makes the task fail as well: it is logged (`REST request failed`, without
+  the response headers and body) then thrown. An unknown `method` makes the task fail too.
 * A `client` that is not registered throws a `CleverAge\RestProcessBundle\Exception\MissingClientException`
   (`No rest client with code : <code>`) on the first execution of the task.

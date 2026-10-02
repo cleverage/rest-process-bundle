@@ -25,6 +25,9 @@ interface ClientInterface
      */
     public function getCode(): string;
 
+    /**
+     * @deprecated typo, implement and use getUri() instead (it will replace this method in the next major version)
+     */
     public function geUri(): string;
 
     public function setUri(string $uri): void;

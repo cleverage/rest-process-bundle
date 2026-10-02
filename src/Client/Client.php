@@ -42,9 +42,17 @@ class Client implements ClientInterface
         return $this->code;
     }
 
-    public function geUri(): string
+    public function getUri(): string
     {
         return $this->uri;
+    }
+
+    /**
+     * @deprecated typo, use getUri() instead
+     */
+    public function geUri(): string
+    {
+        return $this->getUri();
     }
 
     public function setUri(string $uri): void
@@ -182,7 +190,7 @@ class Client implements ClientInterface
 
     protected function getApiUrl(): string
     {
-        return $this->geUri();
+        return $this->getUri();
     }
 
     /**
@@ -199,13 +207,15 @@ class Client implements ClientInterface
                     $item = '{'.$item.'}';
                 }
             );
-            /** @var array<string> $replace */
-            $replace = array_values($options['url_parameters']);
-            array_walk(
-                $replace,
-                static function (&$item, $key) {
-                    $item = rawurlencode($item);
-                }
+            $replace = array_map(
+                static function (mixed $value): string {
+                    if (!\is_scalar($value)) {
+                        throw new \UnexpectedValueException(\sprintf('URL parameters must be scalar values, %s given', get_debug_type($value)));
+                    }
+
+                    return rawurlencode((string) $value);
+                },
+                array_values($options['url_parameters'])
             );
 
             $uri = str_replace($search, $replace, $uri);
