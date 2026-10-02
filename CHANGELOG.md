@@ -1,6 +1,16 @@
 Latest
 ------
 
+### Changes
+* [#31](https://github.com/cleverage/rest-process-bundle/issues/31) Add missing tests: RequestTask and Client with a mocked HTTP client, MissingClientException, bundle and DI extension.
+* [#39](https://github.com/cleverage/rest-process-bundle/issues/39) Add `Client::getUri()`, deprecate the misspelled `geUri()`; type `MissingClientException::create()`. Update documentation, add tests.
+
+### Fixes
+* [#35](https://github.com/cleverage/rest-process-bundle/issues/35) Fix RequestTask: a `3xx` / `4xx` / `5xx` status code listed in `valid_response_code` outputs the response body (the task still failed). Update documentation, add tests.
+* [#36](https://github.com/cleverage/rest-process-bundle/issues/36) Fix RequestTask: log transport errors (the log was lost, reading the response details threw again). Update documentation, add tests.
+* [#37](https://github.com/cleverage/rest-process-bundle/issues/37) Fix RequestTask `log_response`: log the requested URL, and the status code, headers and content of the response (instead of the configured URL and the response object). Update documentation, add tests.
+* [#38](https://github.com/cleverage/rest-process-bundle/issues/38) Fix RequestTask: throw an explicit `\UnexpectedValueException` on a non-array input; Client: convert scalar URL parameters to strings (a `TypeError` was triggered). Update documentation, add tests.
+
 v3.1
 ------
 

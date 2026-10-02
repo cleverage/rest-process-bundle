@@ -20,12 +20,7 @@ namespace CleverAge\RestProcessBundle\Exception;
  */
 class MissingClientException extends RestException
 {
-    /**
-     * @param string $code
-     *
-     * @return MissingClientException
-     */
-    public static function create($code)
+    public static function create(string $code): self
     {
         $errorStr = "No rest client with code : {$code}";
 
