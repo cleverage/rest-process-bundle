@@ -46,8 +46,9 @@ Any other key throws a `Symfony\Component\OptionsResolver\Exception\UndefinedOpt
 
 The request is then built this way:
 - **URL**: `<base URI>/<url>`, the leading `/` of `url` being removed. Then each `{key}` of `url_parameters` is
-  replaced by its value, encoded with [`rawurlencode()`](https://www.php.net/manual/en/function.rawurlencode.php)
-  (values must be strings).
+  replaced by its value, converted to a string and encoded with
+  [`rawurlencode()`](https://www.php.net/manual/en/function.rawurlencode.php) (a non-scalar value throws an
+  `\UnexpectedValueException`).
 - **Method**: must be one of `HEAD`, `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`, `PATCH` (case-sensitive),
   otherwise a `CleverAge\RestProcessBundle\Exception\RestRequestException` (`<method> is not an HTTP method`) is thrown.
 - **Headers**: `headers`, plus `Content-Type: <sends>` and `Accept: <expects>` when these options are not empty
@@ -83,14 +84,14 @@ A client must implement `ClientInterface`:
 | Method                                                | Description                                                                                  |
 |-------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | `getCode(): string`                                   | Code of the client, used by the `client` option of the task. Must be unique                  |
-| `geUri(): string`                                     | Base URI of the API (the method name is misspelled, `geUri`, in the interface)               |
+| `geUri(): string`                                     | **Deprecated** (misspelled): base URI, use `getUri()` of the default `Client`                |
 | `setUri(string $uri): void`                           | Change the base URI                                                                          |
 | `call(array $options = []): ResponseInterface`        | Send the request described by the request options, return a Symfony HttpClient response      |
 
 The simplest way is to extend the default `Client` and override one of its protected methods:
 - `configureOptions(OptionsResolver $resolver)`: request options accepted by `call()`
 - `getRequestOptions(array $options)`: Symfony HttpClient options (headers, `json`, `query`, `body`...)
-- `getApiUrl()`: base URI used to build the request URL (defaults to `geUri()`)
+- `getApiUrl()`: base URI used to build the request URL (defaults to `getUri()`)
 - `constructUri(array $options)` / `replaceParametersInUri(string $uri, array $options)`: URL construction
 
 Examples

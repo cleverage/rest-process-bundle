@@ -26,6 +26,7 @@ use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @phpstan-type Options array{
@@ -76,19 +77,22 @@ class RequestTask extends AbstractConfigurableTask
             ['requestOptions' => $requestOptions]
         );
         $response = $this->registry->getClient($options['client'])->call($requestOptions);
-        if ($options['log_response']) {
-            $this->logger->debug(
-                "Response received from '{$options['url']}'",
-                [
-                    'requestOptions' => $requestOptions,
-                    'result' => $response,
-                ]
-            );
-        }
 
-        // Handle empty results
         try {
-            if (!\in_array($response->getStatusCode(), $options['valid_response_code'], false)) {
+            $statusCode = $response->getStatusCode();
+            if ($options['log_response']) {
+                $this->logger->debug(
+                    "Response received from '{$requestOptions['url']}'",
+                    [
+                        'requestOptions' => $requestOptions,
+                        'status_code' => $statusCode,
+                        'headers' => $response->getHeaders(false),
+                        'content' => $response->getContent(false),
+                    ]
+                );
+            }
+
+            if (!\in_array($statusCode, $options['valid_response_code'], false)) {
                 $state->setErrorOutput($response->getContent(false));
 
                 if (TaskConfiguration::STRATEGY_SKIP === $state->getTaskConfiguration()->getErrorStrategy()) {
@@ -100,35 +104,38 @@ class RequestTask extends AbstractConfigurableTask
                 throw new \Exception('Invalid response code');
             }
 
-            $state->setOutput($response->getContent());
+            // The status code is valid: do not throw for 3xx / 4xx / 5xx codes listed in valid_response_code
+            $state->setOutput($response->getContent(false));
         } catch (\Throwable $e) {
-            $allowRedirectionException = false;
-            $allowClientException = false;
-            foreach ($options['valid_response_code'] as $code) {
-                if ($code >= 300 && $code < 400) {
-                    $allowRedirectionException = true;
-                }
-                if ($code >= 400 && $code < 500) {
-                    $allowClientException = true;
-                }
-            }
-            if ((!$allowRedirectionException || !$e instanceof RedirectionExceptionInterface)
-                && (!$allowClientException || !$e instanceof ClientExceptionInterface)
-            ) {
-                $this->logger->error(
-                    'REST request failed',
-                    [
-                        'client' => $options['client'],
-                        'options' => $options,
-                        'request_options' => $requestOptions,
-                        'message' => $e->getMessage(),
-                        'raw_headers' => $response->getHeaders(false),
-                        'raw_body' => $response->getContent(false),
-                    ]
-                );
-            }
+            $this->logger->error(
+                'REST request failed',
+                [
+                    'client' => $options['client'],
+                    'options' => $options,
+                    'request_options' => $requestOptions,
+                    'message' => $e->getMessage(),
+                    ...$this->getResponseDetails($response),
+                ]
+            );
 
             throw $e;
+        }
+    }
+
+    /**
+     * Headers and body of the response, for the error log: not available after a transport error.
+     *
+     * @return array{raw_headers?: array<string, list<string>>, raw_body?: string}
+     */
+    protected function getResponseDetails(ResponseInterface $response): array
+    {
+        try {
+            return [
+                'raw_headers' => $response->getHeaders(false),
+                'raw_body' => $response->getContent(false),
+            ];
+        } catch (TransportExceptionInterface) {
+            return [];
         }
     }
 
@@ -182,8 +189,10 @@ class RequestTask extends AbstractConfigurableTask
             'data' => $options['data'],
         ];
 
-        /** @var array<mixed> $input */
         $input = $state->getInput() ?: [];
+        if (!\is_array($input)) {
+            throw new \UnexpectedValueException(\sprintf('RequestTask expects an array or empty input, %s given', get_debug_type($input)));
+        }
 
         /** @var RequestOptions $mergedOptions */
         $mergedOptions = array_merge($requestOptions, $input);
