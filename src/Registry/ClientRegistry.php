@@ -24,12 +24,25 @@ class ClientRegistry
     /** @var ClientInterface[] */
     private array $clients = [];
 
-    public function addClient(ClientInterface $client): void
+    /** @var array<string, string|null> Service ids of the clients, indexed by code */
+    private array $serviceIds = [];
+
+    /**
+     * @param string|null $serviceId Id of the client service, used to identify the clients with the same code
+     */
+    public function addClient(ClientInterface $client, ?string $serviceId = null): void
     {
-        if (\array_key_exists($client->getCode(), $this->getClients())) {
-            throw new \UnexpectedValueException("Client {$client->getCode()} is already defined");
+        $code = $client->getCode();
+        if (\array_key_exists($code, $this->getClients())) {
+            $message = "Client {$code} is already defined";
+            if (null !== $this->serviceIds[$code] && null !== $serviceId) {
+                $message .= " by service \"{$this->serviceIds[$code]}\", cannot register service \"{$serviceId}\"";
+            }
+
+            throw new \UnexpectedValueException($message);
         }
-        $this->clients[$client->getCode()] = $client;
+        $this->clients[$code] = $client;
+        $this->serviceIds[$code] = $serviceId;
     }
 
     /**

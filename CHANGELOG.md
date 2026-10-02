@@ -4,6 +4,7 @@ Latest
 ### Changes
 * [#31](https://github.com/cleverage/rest-process-bundle/issues/31) Add missing tests: RequestTask and Client with a mocked HTTP client, MissingClientException, bundle and DI extension.
 * [#39](https://github.com/cleverage/rest-process-bundle/issues/39) Add `Client::getUri()`, deprecate the misspelled `geUri()`; type `MissingClientException::create()`. Update documentation, add tests.
+* [#33](https://github.com/cleverage/rest-process-bundle/issues/33) Give the ids of both services in the error on duplicate client codes: the clients are registered by a compiler pass of the bundle, `ClientRegistry::addClient()` gets an optional `$serviceId` argument. Update documentation, add tests.
 
 ### Fixes
 * [#35](https://github.com/cleverage/rest-process-bundle/issues/35) Fix RequestTask: a `3xx` / `4xx` / `5xx` status code listed in `valid_response_code` outputs the response body (the task still failed). Update documentation, add tests.
