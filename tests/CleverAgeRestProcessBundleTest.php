@@ -15,6 +15,7 @@ namespace CleverAge\RestProcessBundle\Tests;
 
 use CleverAge\RestProcessBundle\CleverAgeRestProcessBundle;
 use CleverAge\RestProcessBundle\Client\Client;
+use CleverAge\RestProcessBundle\DependencyInjection\Compiler\RegisterClientsPass;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -27,6 +28,7 @@ use Symfony\Component\HttpClient\MockHttpClient;
 #[CoversClass(CleverAgeRestProcessBundle::class)]
 #[UsesClass(ClientRegistry::class)]
 #[UsesClass(Client::class)]
+#[UsesClass(RegisterClientsPass::class)]
 class CleverAgeRestProcessBundleTest extends TestCase
 {
     public function testPathIsTheBundleRoot(): void
