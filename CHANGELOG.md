@@ -1,6 +1,9 @@
 Latest
 ------
 
+### Changes
+* [#44](https://github.com/cleverage/rest-process-bundle/issues/44) Require `psr/log`, used directly by `Client` and `RequestTask` but only installed through `cleverage/process-bundle`.
+
 v3.2
 ------
 
