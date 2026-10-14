@@ -38,11 +38,33 @@ class ClientTest extends TestCase
 
         self::assertSame('api', $client->getCode());
         self::assertSame('https://example.com/api', $client->getUri());
-        self::assertSame('https://example.com/api', $client->geUri());
         self::assertInstanceOf(NullLogger::class, $client->getLogger());
 
         $client->setUri('https://other.example.com');
         self::assertSame('https://other.example.com', $client->getUri());
+    }
+
+    public function testGeUriIsDeprecated(): void
+    {
+        $client = $this->createClient();
+
+        $deprecations = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
+            $deprecations[] = $errstr;
+
+            return true;
+        }, \E_USER_DEPRECATED);
+        try {
+            $uri = $client->geUri();
+        } finally {
+            restore_error_handler();
+        }
+
+        self::assertSame('https://example.com/api', $uri);
+        self::assertSame(
+            ['Since cleverage/rest-process-bundle 3.2: The "CleverAge\RestProcessBundle\Client\Client::geUri()" method is deprecated, use "getUri()" instead.'],
+            $deprecations
+        );
     }
 
     public function testGetWithQueryAndUrlParameters(): void

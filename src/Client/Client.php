@@ -52,6 +52,8 @@ class Client implements ClientInterface
      */
     public function geUri(): string
     {
+        trigger_deprecation('cleverage/rest-process-bundle', '3.2', 'The "%s()" method is deprecated, use "getUri()" instead.', __METHOD__);
+
         return $this->getUri();
     }
 
