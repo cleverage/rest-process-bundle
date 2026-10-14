@@ -51,7 +51,7 @@
     "require": {
         "php": ">=8.2",
         "cleverage/process-bundle": "^5.0",
-        "psr/log": "^1 || ^2 || ^3",
+        "psr/log": "^2 || ^3",
         "symfony/config": "^6.4 || ^7.4 || ^8",
         "symfony/dependency-injection": "^6.4 || ^7.4 || ^8",
         "symfony/deprecation-contracts": "^2.5 || ^3",

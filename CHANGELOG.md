@@ -2,6 +2,7 @@ Latest
 ------
 
 ### Changes
+* [#50](https://github.com/cleverage/rest-process-bundle/issues/50) CI: test the lowest versions allowed by `composer.json` (`--prefer-lowest`, PHP 8.2). Raise `psr/log` to `^2 || ^3`: `cleverage/process-bundle` loggers and the test loggers use the typed `log()` signature, a fatal error with `psr/log` 1.
 * [#48](https://github.com/cleverage/rest-process-bundle/issues/48) `Client::geUri()` (deprecated since v3.2, use `getUri()`) triggers a deprecation at runtime with `trigger_deprecation()` (`symfony/deprecation-contracts`, now required). Add tests.
 * [#46](https://github.com/cleverage/rest-process-bundle/issues/46) Add a `.gitattributes`: the development files (`.docker/`, `.github/`, `tests/`, quality tools and PHPUnit configurations, `Makefile`) are no longer part of the archive installed by Composer (`dist`).
 * [#44](https://github.com/cleverage/rest-process-bundle/issues/44) Require `psr/log`, used directly by `Client` and `RequestTask` but only installed through `cleverage/process-bundle`.
