@@ -2,8 +2,8 @@ REST client
 ===========
 
 A REST client holds the connection to one API (its base URI, the HTTP client to use) and sends the requests built by
-the [RequestTask](tasks/request_task.md). Each client is a service tagged `cleverage.rest.client`, identified by a
-unique code that the task references with its `client` option.
+the [RequestTask](tasks/request_task.md). Each client is a service tagged `cleverage.rest.client` with its code (or
+using the `#[AsRestClient]` attribute), a unique code that the task references with its `client` option.
 
 Client reference
 ----------------
@@ -11,8 +11,11 @@ Client reference
 * **Interface**: `CleverAge\RestProcessBundle\Client\ClientInterface`
 * **Default implementation**: `CleverAge\RestProcessBundle\Client\Client`, based on the Symfony
   [HttpClient](https://symfony.com/doc/current/http_client.html)
-* **Service tag**: `cleverage.rest.client`
-* **Registry**: `CleverAge\RestProcessBundle\Registry\ClientRegistry` (service `cleverage_rest_process.registry.client`)
+* **Service tag**: `cleverage.rest.client`, with a `code` attribute (`- { name: cleverage.rest.client, code: my_api }`)
+* **Attribute**: `CleverAge\RestProcessBundle\Attribute\AsRestClient` (`#[AsRestClient(code: 'my_api')]`, with
+  autoconfiguration), equivalent to the tag
+* **Registry**: `CleverAge\RestProcessBundle\Registry\ClientRegistry` (service `cleverage_rest_process.registry.client`,
+  autowirable by its class name)
 
 Constructor arguments
 ---------------------
@@ -69,12 +72,30 @@ only occur when the task reads the response.
 Registration
 ------------
 
-Every service tagged `cleverage.rest.client` is added to the registry (a compiler pass calls
-`ClientRegistry::addClient()` for each of them, with the service id). Two clients with the same code throw an
-`UnexpectedValueException` giving the ids of both services
-(`Client <code> is already defined by service "<id>", cannot register service "<id>"`) when the registry is
-instantiated; a task referencing an unknown code throws a
+The services tagged `cleverage.rest.client` are registered in the registry by their `code` attribute, in a service
+locator built when the container is compiled: a client is only instantiated when a task uses it (an error in a client
+that a process does not use does not make it fail). The `code` must be the one returned by the `getCode()` method of
+the client (an `UnexpectedValueException` is thrown otherwise when it is fetched). Two clients with the same code, or an
+empty code, fail the container compilation; a task referencing an unknown code throws a
 `CleverAge\RestProcessBundle\Exception\MissingClientException` (`No rest client with code : <code>`).
+
+The `#[AsRestClient]` attribute adds the same tag to an autoconfigured service:
+
+```php
+use CleverAge\RestProcessBundle\Attribute\AsRestClient;
+use CleverAge\RestProcessBundle\Client\Client;
+
+#[AsRestClient(code: 'my_api')]
+class MyApiClient extends Client
+{
+}
+```
+
+**Deprecated**: a service tagged without `code` is still registered, with `ClientRegistry::addClient()`, instantiated
+with the registry (deprecated since 3.3, the `code` will be required in 4.0). Two clients with the same code then throw
+an `UnexpectedValueException` giving the ids of both services
+(`Client <code> is already defined by service "<id>", cannot register service "<id>"`) when the registry is
+instantiated.
 
 Implementing a client
 ---------------------
@@ -110,7 +131,7 @@ services:
       $code: 'apicarto_ign'
       $uri: 'https://apicarto.ign.fr/api'
     tags:
-      - { name: cleverage.rest.client }
+      - { name: cleverage.rest.client, code: apicarto_ign }
 ```
 
 * Default client without autowiring, using a
@@ -137,7 +158,7 @@ services:
       $code: 'domain_sample'
       $uri: 'https://domain/api'
     tags:
-      - { name: cleverage.rest.client }
+      - { name: cleverage.rest.client, code: domain_sample }
 ```
 
 * Custom client adding an API key header to every request
@@ -186,5 +207,5 @@ services:
       $uri: 'https://domain/api'
       $apiKey: '%env(DOMAIN_API_KEY)%'
     tags:
-      - { name: cleverage.rest.client }
+      - { name: cleverage.rest.client, code: domain_sample }
 ```

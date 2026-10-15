@@ -2,3 +2,9 @@ services:
     cleverage_rest_process.registry.client:
         class: CleverAge\RestProcessBundle\Registry\ClientRegistry
         public: false
+        arguments:
+            - ~ # Service locator of the clients by code, see RegisterClientsPass
+
+    CleverAge\RestProcessBundle\Registry\ClientRegistry:
+        alias: cleverage_rest_process.registry.client
+        public: false

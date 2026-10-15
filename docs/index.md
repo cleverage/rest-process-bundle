@@ -31,7 +31,7 @@ Its service id is its class name. Fetching it directly from the service containe
 private in 4.0); its former id, `cleverage_rest_process.task.request`, is a deprecated alias since 3.3, removed in 4.0.
 
 Each API is accessed through a [REST client](reference/client.md): a
-service tagged `cleverage.rest.client`, identified by a unique code and holding the base URI of the API.
+service tagged `cleverage.rest.client` with a unique code, holding the base URI of the API.
 
 ```yaml
 # config/services.yaml
@@ -44,7 +44,7 @@ services:
       $code: 'apicarto_ign'
       $uri: 'https://apicarto.ign.fr/api'
     tags:
-      - { name: cleverage.rest.client }
+      - { name: cleverage.rest.client, code: apicarto_ign }
 ```
 
 The [RequestTask](reference/tasks/request_task.md) then references this client by its code:

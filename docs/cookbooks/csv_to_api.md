@@ -23,7 +23,7 @@ services:
       $code: 'catalog'
       $uri: '%env(CATALOG_API_URI)%' # e.g. https://catalog.example.com/api
     tags:
-      - { name: cleverage.rest.client }
+      - { name: cleverage.rest.client, code: catalog }
 ```
 
 The process:
