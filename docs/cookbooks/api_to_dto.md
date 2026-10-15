@@ -43,7 +43,7 @@ services:
       $code: 'apicarto_ign'
       $uri: 'https://apicarto.ign.fr/api'
     tags:
-      - { name: cleverage.rest.client }
+      - { name: cleverage.rest.client, code: apicarto_ign }
 ```
 
 The process, executed with `bin/console cleverage:process:execute app.communes_export -c codePostal:"'46800'"`:

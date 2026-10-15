@@ -13,7 +13,9 @@ declare(strict_types=1);
 
 namespace CleverAge\RestProcessBundle\DependencyInjection;
 
+use CleverAge\RestProcessBundle\Attribute\AsRestClient;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\DependencyInjection\ChildDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
@@ -24,6 +26,13 @@ class CleverAgeRestProcessExtension extends Extension
     public function load(array $configs, ContainerBuilder $container): void
     {
         $this->findServices($container, __DIR__.'/../../config/services');
+
+        $container->registerAttributeForAutoconfiguration(
+            AsRestClient::class,
+            static function (ChildDefinition $definition, AsRestClient $attribute): void {
+                $definition->addTag('cleverage.rest.client', ['code' => $attribute->code]);
+            }
+        );
     }
 
     /**

@@ -13,15 +13,23 @@ declare(strict_types=1);
 
 namespace CleverAge\RestProcessBundle\Tests\DependencyInjection;
 
+use CleverAge\RestProcessBundle\Attribute\AsRestClient;
 use CleverAge\RestProcessBundle\DependencyInjection\CleverAgeRestProcessExtension;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\RestProcessBundle\Task\RequestTask;
+use CleverAge\RestProcessBundle\Tests\Fixtures\AttributedClient;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\Compiler\AttributeAutoconfigurationPass;
+use Symfony\Component\DependencyInjection\Compiler\ResolveChildDefinitionsPass;
+use Symfony\Component\DependencyInjection\Compiler\ResolveInstanceofConditionalsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[CoversClass(CleverAgeRestProcessExtension::class)]
+#[UsesClass(AsRestClient::class)]
 class CleverAgeRestProcessExtensionTest extends TestCase
 {
     public function testServices(): void
@@ -30,6 +38,8 @@ class CleverAgeRestProcessExtensionTest extends TestCase
         (new CleverAgeRestProcessExtension())->load([], $container);
 
         self::assertSame(ClientRegistry::class, $container->getDefinition('cleverage_rest_process.registry.client')->getClass());
+        // Autowirable by its class name
+        self::assertSame('cleverage_rest_process.registry.client', (string) $container->getAlias(ClientRegistry::class));
 
         // The class name is the service id
         $definition = $container->getDefinition(RequestTask::class);
@@ -53,5 +63,18 @@ class CleverAgeRestProcessExtensionTest extends TestCase
             ['package' => 'cleverage/rest-process-bundle', 'version' => '3.3', 'message' => 'The "'.$deprecatedId.'" service alias is deprecated, use the "rest_request" task code or the class name of the task instead. It will be removed in 4.0.'],
             $alias->getDeprecation($deprecatedId)
         );
+    }
+
+    public function testAsRestClientAttributeRegistersTheCode(): void
+    {
+        $container = new ContainerBuilder();
+        (new CleverAgeRestProcessExtension())->load([], $container);
+        $container->setDefinition('app.attributed', (new Definition(AttributedClient::class))->setAutoconfigured(true));
+
+        (new AttributeAutoconfigurationPass())->process($container);
+        (new ResolveInstanceofConditionalsPass())->process($container);
+        (new ResolveChildDefinitionsPass())->process($container);
+
+        self::assertSame([['code' => 'app_attributed']], $container->getDefinition('app.attributed')->getTag('cleverage.rest.client'));
     }
 }

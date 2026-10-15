@@ -27,6 +27,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\AbstractLogger;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use Symfony\Component\HttpClient\Exception\TransportException;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
@@ -211,8 +212,8 @@ class RequestTaskTest extends TestCase
             }
         };
 
-        $registry = new ClientRegistry();
-        $registry->addClient(new Client($httpClient, $logger, 'api', 'https://example.com/api'));
+        $client = new Client($httpClient, $logger, 'api', 'https://example.com/api');
+        $registry = new ClientRegistry(new ServiceLocator(['api' => static fn (): Client => $client]));
 
         $processConfiguration = new ProcessConfiguration('test', []);
         $state = new ProcessState($processConfiguration, new ProcessHistory($processConfiguration));
