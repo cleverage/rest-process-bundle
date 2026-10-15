@@ -20,11 +20,11 @@ clever_age_process:
         demo.<name>:
             tasks:
                 <task>:
-                    service: '@CleverAge\RestProcessBundle\Task\...'
+                    task: rest_request # code of the task, given on its reference page
                     options: {}
                     outputs: [debug]
                 debug:
-                    service: '@CleverAge\ProcessBundle\Task\Debug\DebugTask'
+                    task: debug
 ```
 
 <!-- Input data, command and actual output -->
