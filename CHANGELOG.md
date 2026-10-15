@@ -2,6 +2,7 @@ Latest
 ------
 
 ### Changes
+* [#52](https://github.com/cleverage/rest-process-bundle/issues/52) Give a code to the task ([cleverage/process-bundle#91](https://github.com/cleverage/process-bundle/issues/91)): `rest_request` (`task: rest_request`, with `cleverage/process-bundle` 5.4 or later, referencing it by `service` being deprecated there). The task has its class name as service id; fetching it directly from the service container is deprecated (`container.private`), it will be private in 4.0. The former id `cleverage_rest_process.task.request` is a deprecated alias, removed in 4.0. Update documentation, add tests.
 * [#50](https://github.com/cleverage/rest-process-bundle/issues/50) CI: test the lowest versions allowed by `composer.json` (`--prefer-lowest`, PHP 8.2). Raise `psr/log` to `^2 || ^3`: `cleverage/process-bundle` loggers and the test loggers use the typed `log()` signature, a fatal error with `psr/log` 1.
 * [#48](https://github.com/cleverage/rest-process-bundle/issues/48) `Client::geUri()` (deprecated since v3.2, use `getUri()`) triggers a deprecation at runtime with `trigger_deprecation()` (`symfony/deprecation-contracts`, now required). Add tests.
 * [#46](https://github.com/cleverage/rest-process-bundle/issues/46) Add a `.gitattributes`: the development files (`.docker/`, `.github/`, `tests/`, quality tools and PHPUnit configurations, `Makefile`) are no longer part of the archive installed by Composer (`dist`).

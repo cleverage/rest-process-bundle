@@ -31,15 +31,27 @@ class CleverAgeRestProcessExtensionTest extends TestCase
 
         self::assertSame(ClientRegistry::class, $container->getDefinition('cleverage_rest_process.registry.client')->getClass());
 
-        $definition = $container->getDefinition('cleverage_rest_process.task.request');
-        self::assertSame(RequestTask::class, $definition->getClass());
+        // The class name is the service id
+        $definition = $container->getDefinition(RequestTask::class);
         // Tasks are stateful: each process execution must get its own instance
         self::assertFalse($definition->isShared());
         self::assertEquals([new Reference('logger'), new Reference('cleverage_rest_process.registry.client')], $definition->getArguments());
+        self::assertSame([['channel' => 'cleverage_process_task']], $definition->getTag('monolog.logger'));
+        // Referenced by its code in the process configurations (task: <code>)
+        self::assertSame([['code' => 'rest_request']], $definition->getTag('cleverage.task'));
+        // Public for the direct access from the service container, deprecated
+        self::assertTrue($definition->isPublic());
+        self::assertSame([['package' => 'cleverage/rest-process-bundle', 'version' => '3.3']], $definition->getTag('container.private'));
 
-        // Referenced as '@<class>' in process configurations
-        $alias = $container->getAlias(RequestTask::class);
-        self::assertSame('cleverage_rest_process.task.request', (string) $alias);
-        self::assertTrue($alias->isPublic());
+        // Former id, deprecated
+        $deprecatedId = 'cleverage_rest_process.task.request';
+        $alias = $container->getAlias($deprecatedId);
+        self::assertSame(RequestTask::class, (string) $alias);
+        self::assertFalse($alias->isPublic());
+        self::assertTrue($alias->isDeprecated());
+        self::assertSame(
+            ['package' => 'cleverage/rest-process-bundle', 'version' => '3.3', 'message' => 'The "'.$deprecatedId.'" service alias is deprecated, use the "rest_request" task code or the class name of the task instead. It will be removed in 4.0.'],
+            $alias->getDeprecation($deprecatedId)
+        );
     }
 }

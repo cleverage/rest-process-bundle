@@ -56,7 +56,7 @@ clever_age_process:
             help: "bin/console cleverage:process:execute app.communes_export -c codePostal:\"'46800'\""
             tasks:
                 fetch:
-                    service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+                    task: rest_request
                     error_strategy: stop
                     options:
                         client: apicarto_ign
@@ -66,24 +66,24 @@ clever_age_process:
                     outputs: [deserialize]
 
                 deserialize:
-                    service: '@CleverAge\ProcessBundle\Task\Serialization\DeserializerTask'
+                    task: deserializer
                     options:
                         type: 'App\Dto\Commune[]'
                         format: json
                     outputs: [iterate]
 
                 iterate:
-                    service: '@CleverAge\ProcessBundle\Task\InputIteratorTask'
+                    task: input_iterator
                     outputs: [normalize]
 
                 normalize:
-                    service: '@CleverAge\ProcessBundle\Task\Serialization\NormalizerTask'
+                    task: normalizer
                     options:
                         format: csv
                     outputs: [write]
 
                 write:
-                    service: '@CleverAge\ProcessBundle\Task\File\Csv\CsvWriterTask'
+                    task: csv_writer
                     options:
                         file_path: '%kernel.project_dir%/var/exports/communes_{date}.csv'
 ```
@@ -110,7 +110,7 @@ transformer:
 ```yaml
 # Task configuration level
 json_decode:
-  service: '@CleverAge\ProcessBundle\Task\TransformerTask'
+  task: transformer
   options:
     transformers:
       callback:

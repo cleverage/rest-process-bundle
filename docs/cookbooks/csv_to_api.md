@@ -35,13 +35,13 @@ clever_age_process:
             description: 'Push the products CSV file to the catalog API'
             tasks:
                 read:
-                    service: '@CleverAge\ProcessBundle\Task\File\Csv\CsvReaderTask'
+                    task: csv_reader
                     options:
                         file_path: '%kernel.project_dir%/var/data/products.csv'
                     outputs: [build_request]
 
                 build_request:
-                    service: '@CleverAge\ProcessBundle\Task\TransformerTask'
+                    task: transformer
                     options:
                         transformers:
                             mapping:
@@ -64,7 +64,7 @@ clever_age_process:
                     outputs: [push]
 
                 push:
-                    service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+                    task: rest_request
                     error_strategy: skip # A rejected line does not stop the process
                     options:
                         client: catalog
@@ -76,10 +76,10 @@ clever_age_process:
                     error_outputs: [log_rejected]
 
                 count_pushed:
-                    service: '@CleverAge\ProcessBundle\Task\Reporting\StatCounterTask'
+                    task: stat_counter
 
                 log_rejected:
-                    service: '@CleverAge\ProcessBundle\Task\Reporting\LoggerTask'
+                    task: logger
                     options:
                         level: warning
                         message: 'Product rejected by the catalog API'

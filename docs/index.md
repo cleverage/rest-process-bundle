@@ -21,7 +21,16 @@ CleverAge\RestProcessBundle\CleverAgeRestProcessBundle::class => ['all' => true]
 
 ## Configuration
 
-The bundle has no configuration of its own. Each API is accessed through a [REST client](reference/client.md): a
+The bundle has no configuration of its own. Its task is registered as a service (non-shared) and is used in your
+processes by its code, `rest_request` (`task: rest_request`, requires `cleverage/process-bundle` 5.4 or later, see its
+[task definition](https://github.com/cleverage/process-bundle/blob/main/docs/reference/02-task_definition.md)).
+Referencing it by its class name (`service: '@CleverAge\RestProcessBundle\Task\RequestTask'`) is deprecated since
+`cleverage/process-bundle` 5.4.
+
+Its service id is its class name. Fetching it directly from the service container is deprecated since 3.3 (it will be
+private in 4.0); its former id, `cleverage_rest_process.task.request`, is a deprecated alias since 3.3, removed in 4.0.
+
+Each API is accessed through a [REST client](reference/client.md): a
 service tagged `cleverage.rest.client`, identified by a unique code and holding the base URI of the API.
 
 ```yaml
@@ -43,7 +52,7 @@ The [RequestTask](reference/tasks/request_task.md) then references this client b
 ```yaml
 # Task configuration level
 fetch:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  task: rest_request
   options:
     client: apicarto_ign
     url: '/codes-postaux/communes/{codePostal}'
