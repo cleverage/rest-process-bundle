@@ -10,6 +10,7 @@ Task reference
 --------------
 
 * **Service**: `CleverAge\RestProcessBundle\Task\RequestTask`
+* **Code**: `rest_request` (`task: rest_request`)
 
 Accepted inputs
 ---------------
@@ -74,7 +75,7 @@ services:
 ```yaml
 # Task configuration level
 entry:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  task: rest_request
   error_strategy: stop
   options:
     client: apicarto_ign
@@ -90,7 +91,7 @@ entry:
 ```yaml
 # Task configuration level
 list_books:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  task: rest_request
   options:
     client: domain_sample
     url: '/books'
@@ -107,7 +108,7 @@ list_books:
 ```yaml
 # Task configuration level
 entry:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  task: rest_request
   error_strategy: stop
   options:
     client: apicarto_ign
@@ -126,7 +127,7 @@ entry:
 ```yaml
 # Task configuration level
 get_token:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  task: rest_request
   options:
     client: domain_sample
     url: '/oauth/token'
@@ -147,7 +148,7 @@ get_token:
 ```yaml
 # Task configuration level
 update_book:
-  service: '@CleverAge\RestProcessBundle\Task\RequestTask'
+  task: rest_request
   error_strategy: skip
   options:
     client: domain_sample

@@ -1,13 +1,22 @@
 services:
-    cleverage_rest_process.task.request:
-        class: CleverAge\RestProcessBundle\Task\RequestTask
-        public: false
+    _defaults:
+        # Public for the direct access from the service container, deprecated since 3.3: private in 4.0
+        public: true
+        tags:
+            - { name: container.private, package: cleverage/rest-process-bundle, version: '3.3' }
+
+    CleverAge\RestProcessBundle\Task\RequestTask:
         shared: false
         arguments:
             - '@logger'
             - '@cleverage_rest_process.registry.client'
         tags:
             - { name: monolog.logger, channel: cleverage_process_task }
-    CleverAge\RestProcessBundle\Task\RequestTask:
-        alias: cleverage_rest_process.task.request
-        public: true
+            - { name: cleverage.task, code: rest_request }
+    cleverage_rest_process.task.request:
+        alias: CleverAge\RestProcessBundle\Task\RequestTask
+        public: false
+        deprecated:
+            package: cleverage/rest-process-bundle
+            version: '3.3'
+            message: 'The "%alias_id%" service alias is deprecated, use the "rest_request" task code or the class name of the task instead. It will be removed in 4.0.'
