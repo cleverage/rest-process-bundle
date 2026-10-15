@@ -19,7 +19,6 @@ use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\RestProcessBundle\Task\RequestTask;
 use CleverAge\RestProcessBundle\Tests\Fixtures\AttributedClient;
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\DependencyInjection\Compiler\AttributeAutoconfigurationPass;
 use Symfony\Component\DependencyInjection\Compiler\ResolveChildDefinitionsPass;
@@ -29,7 +28,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
 
 #[CoversClass(CleverAgeRestProcessExtension::class)]
-#[UsesClass(AsRestClient::class)]
+#[CoversClass(AsRestClient::class)]
 class CleverAgeRestProcessExtensionTest extends TestCase
 {
     public function testServices(): void
