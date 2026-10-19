@@ -50,7 +50,7 @@ class CleverAgeRestProcessBundleTest extends TestCase
             new Definition(NullLogger::class),
             'api',
             'https://example.com/api',
-        ]))->addTag('cleverage.rest.client');
+        ]))->addTag('cleverage.rest.client', ['code' => 'api']);
         $container->compile(true);
 
         /** @var ClientRegistry $registry */
