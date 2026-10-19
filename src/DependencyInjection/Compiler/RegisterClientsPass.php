@@ -22,6 +22,8 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * Registers the `cleverage.rest.client` tagged services in the client registry: in a service locator indexed by the
  * `code` attribute of the tag (lazy), or, without `code` (deprecated), with an addClient() call (eager).
+ *
+ * @internal
  */
 class RegisterClientsPass implements CompilerPassInterface
 {

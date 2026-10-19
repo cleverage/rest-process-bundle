@@ -50,6 +50,8 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  *      'expects': string,
  *      'data': array<mixed>|string|null
  * }
+ *
+ * @final since 3.3
  */
 class RequestTask extends AbstractConfigurableTask
 {

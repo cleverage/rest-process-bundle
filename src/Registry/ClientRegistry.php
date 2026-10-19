@@ -23,6 +23,8 @@ use Symfony\Contracts\Service\ServiceProviderInterface;
  * The client services are fetched lazily from a service locator indexed by code (`code` attribute of the
  * `cleverage.rest.client` tag, or `#[AsRestClient]`, see RegisterClientsPass): a client is only instantiated when it
  * is used.
+ *
+ * @final since 3.3
  */
 class ClientRegistry
 {
