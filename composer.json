@@ -55,7 +55,6 @@
         "symfony/config": "^6.4 || ^7.4 || ^8",
         "symfony/dependency-injection": "^6.4 || ^7.4 || ^8",
         "symfony/deprecation-contracts": "^2.5 || ^3",
-        "symfony/finder": "^6.4 || ^7.4 || ^8",
         "symfony/http-client": "^6.4 || ^7.4 || ^8",
         "symfony/http-client-contracts": "^3",
         "symfony/http-kernel": "^6.4 || ^7.4 || ^8",
