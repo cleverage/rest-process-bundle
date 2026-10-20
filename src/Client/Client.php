@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace CleverAge\RestProcessBundle\Client;
 
 use CleverAge\RestProcessBundle\Exception\RestRequestException;
+use CleverAge\RestProcessBundle\Exception\UnexpectedValueException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -212,7 +213,7 @@ class Client implements ClientInterface
             $replace = array_map(
                 static function (mixed $value): string {
                     if (!\is_scalar($value)) {
-                        throw new \UnexpectedValueException(\sprintf('URL parameters must be scalar values, %s given', get_debug_type($value)));
+                        throw new UnexpectedValueException(\sprintf('URL parameters must be scalar values, %s given', get_debug_type($value)));
                     }
 
                     return rawurlencode((string) $value);

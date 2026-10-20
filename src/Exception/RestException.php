@@ -13,11 +13,13 @@ declare(strict_types=1);
 
 namespace CleverAge\RestProcessBundle\Exception;
 
+use CleverAge\ProcessBundle\Exception\ProcessExceptionInterface;
+
 /**
  * Class RestException.
  *
  * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
-class RestException extends \Exception
+class RestException extends \Exception implements ProcessExceptionInterface
 {
 }

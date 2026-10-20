@@ -20,6 +20,7 @@ use CleverAge\ProcessBundle\Model\ProcessHistory;
 use CleverAge\ProcessBundle\Model\ProcessState;
 use CleverAge\RestProcessBundle\Client\Client;
 use CleverAge\RestProcessBundle\Exception\MissingClientException;
+use CleverAge\RestProcessBundle\Exception\RestRequestException;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\RestProcessBundle\Task\RequestTask;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -106,7 +107,7 @@ class RequestTaskTest extends TestCase
         try {
             $task->execute($state);
             self::fail('The task must fail');
-        } catch (\Exception $e) {
+        } catch (RestRequestException $e) {
             self::assertSame('Invalid response code', $e->getMessage());
         }
 
