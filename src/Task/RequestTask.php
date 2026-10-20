@@ -17,6 +17,8 @@ use CleverAge\ProcessBundle\Configuration\TaskConfiguration;
 use CleverAge\ProcessBundle\Model\AbstractConfigurableTask;
 use CleverAge\ProcessBundle\Model\ProcessState;
 use CleverAge\RestProcessBundle\Exception\MissingClientException;
+use CleverAge\RestProcessBundle\Exception\RestRequestException;
+use CleverAge\RestProcessBundle\Exception\UnexpectedValueException;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
@@ -103,7 +105,7 @@ class RequestTask extends AbstractConfigurableTask
                     $state->setStopped(true);
                 }
 
-                throw new \Exception('Invalid response code');
+                throw new RestRequestException('Invalid response code');
             }
 
             // The status code is valid: do not throw for 3xx / 4xx / 5xx codes listed in valid_response_code
@@ -193,7 +195,7 @@ class RequestTask extends AbstractConfigurableTask
 
         $input = $state->getInput() ?: [];
         if (!\is_array($input)) {
-            throw new \UnexpectedValueException(\sprintf('RequestTask expects an array or empty input, %s given', get_debug_type($input)));
+            throw new UnexpectedValueException(\sprintf('RequestTask expects an array or empty input, %s given', get_debug_type($input)));
         }
 
         /** @var RequestOptions $mergedOptions */
