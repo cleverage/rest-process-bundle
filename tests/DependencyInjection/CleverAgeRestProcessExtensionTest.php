@@ -15,6 +15,7 @@ namespace CleverAge\RestProcessBundle\Tests\DependencyInjection;
 
 use CleverAge\RestProcessBundle\Attribute\AsRestClient;
 use CleverAge\RestProcessBundle\DependencyInjection\CleverAgeRestProcessExtension;
+use CleverAge\RestProcessBundle\DependencyInjection\Configuration;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\RestProcessBundle\Task\RequestTask;
 use CleverAge\RestProcessBundle\Tests\Fixtures\AttributedClient;
@@ -29,6 +30,7 @@ use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\Yaml\Yaml;
 
 #[CoversClass(CleverAgeRestProcessExtension::class)]
+#[CoversClass(Configuration::class)]
 #[CoversClass(AsRestClient::class)]
 class CleverAgeRestProcessExtensionTest extends TestCase
 {
@@ -109,5 +111,53 @@ class CleverAgeRestProcessExtensionTest extends TestCase
         (new ResolveChildDefinitionsPass())->process($container);
 
         self::assertSame([['code' => 'app_attributed']], $container->getDefinition('app.attributed')->getTag('cleverage.rest.client'));
+    }
+
+    public function testConfigurationKeysAreDeprecated(): void
+    {
+        $deprecations = $this->collectDeprecations(static function (): void {
+            (new CleverAgeRestProcessExtension())->load([[], ['foo' => true], ['bar' => 1, 'foo' => false]], new ContainerBuilder());
+        });
+
+        self::assertSame(['Since cleverage/rest-process-bundle 3.3: Configuring "clever_age_rest_process" is deprecated, the bundle has no configuration: the keys "foo", "bar" are ignored. They will be rejected in 4.0.'], $deprecations);
+    }
+
+    public function testNoDeprecationWithoutConfigurationKey(): void
+    {
+        $deprecations = $this->collectDeprecations(static function (): void {
+            (new CleverAgeRestProcessExtension())->load([[], []], new ContainerBuilder());
+        });
+
+        self::assertSame([], $deprecations);
+    }
+
+    public function testConfigurationHasNoOption(): void
+    {
+        $configuration = (new CleverAgeRestProcessExtension())->getConfiguration([], new ContainerBuilder());
+
+        self::assertInstanceOf(Configuration::class, $configuration);
+        self::assertSame('clever_age_rest_process', $configuration->getConfigTreeBuilder()->buildTree()->getName());
+    }
+
+    /**
+     * @param callable(): void $callback
+     *
+     * @return list<string>
+     */
+    private function collectDeprecations(callable $callback): array
+    {
+        $deprecations = [];
+        set_error_handler(static function (int $errno, string $errstr) use (&$deprecations): bool {
+            $deprecations[] = $errstr;
+
+            return true;
+        }, \E_USER_DEPRECATED);
+        try {
+            $callback();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $deprecations;
     }
 }
