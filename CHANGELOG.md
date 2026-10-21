@@ -1,7 +1,12 @@
 Latest
 ------
 
+v3.3
+------
+
 ### Changes
+* Require `cleverage/process-bundle` `^5.4`.
+* Please follow [UPGRADE.md v3.3](UPGRADE.md#v33)
 * [#73](https://github.com/cleverage/rest-process-bundle/issues/73) Document that a client, shared, keeps its state between two process executions in a long-running worker: a base URI changed with `setUri()` is not reset.
 * [#71](https://github.com/cleverage/rest-process-bundle/issues/71) The configuration key of the bundle (its extension alias) is `cleverage_rest_process`, instead of `clever_age_rest_process` (no option could be configured there). Configuring a key under `cleverage_rest_process` is deprecated: the bundle has no configuration and the keys were ignored without notice (new internal `Configuration`, empty; notice when the container is compiled). They will be rejected in 4.0. Update documentation, add tests.
 * [#69](https://github.com/cleverage/rest-process-bundle/issues/69) The bundle throws exceptions implementing `ProcessExceptionInterface` of the process bundle instead of raw SPL exceptions (as [cleverage/process-bundle#317](https://github.com/cleverage/process-bundle/issues/317)): new `Exception\UnexpectedValueException`, extending the SPL exceptions thrown before (same messages, the existing `catch` keep working). `RestException` (and so `RestRequestException` and `MissingClientException`) implements `ProcessExceptionInterface`; `RequestTask` throws a `RestRequestException` instead of a raw `\Exception` for an invalid response code (same message). Add tests.
