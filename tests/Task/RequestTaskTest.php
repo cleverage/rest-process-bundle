@@ -21,6 +21,7 @@ use CleverAge\ProcessBundle\Model\ProcessState;
 use CleverAge\RestProcessBundle\Client\Client;
 use CleverAge\RestProcessBundle\Exception\MissingClientException;
 use CleverAge\RestProcessBundle\Exception\RestRequestException;
+use CleverAge\RestProcessBundle\Logger\SensitiveDataMasker;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use CleverAge\RestProcessBundle\Task\RequestTask;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -37,6 +38,7 @@ use Symfony\Component\HttpClient\Response\MockResponse;
 #[UsesClass(Client::class)]
 #[UsesClass(ClientRegistry::class)]
 #[UsesClass(MissingClientException::class)]
+#[UsesClass(SensitiveDataMasker::class)]
 class RequestTaskTest extends TestCase
 {
     /** @var list<array{level: string, message: string, context: array<mixed>}> */
@@ -163,6 +165,35 @@ class RequestTaskTest extends TestCase
         self::assertSame(200, $log['context']['status_code']);
         self::assertSame('{"id":2}', $log['context']['content']);
         self::assertSame(['x-id' => ['2']], $log['context']['headers']);
+    }
+
+    /**
+     * The logs can be stored and displayed elsewhere (e.g. by the UI bundle, to every user): the credentials of the
+     * request and the cookies of the response must not be logged.
+     */
+    public function testCredentialsAreNotLogged(): void
+    {
+        [$task, $state] = $this->createTask(
+            [
+                'headers' => ['Authorization' => 'Bearer SECRET-TOKEN', 'X-Api-Key' => 'SECRET-KEY'],
+                'data' => ['client_id' => 'my-client', 'client_secret' => 'SECRET-DATA'],
+                'log_response' => true,
+            ],
+            new MockResponse('{"error":"forbidden"}', ['http_code' => 403, 'response_headers' => ['Set-Cookie: session=SECRET-COOKIE']])
+        );
+
+        try {
+            $task->execute($state);
+            self::fail('The task must fail');
+        } catch (RestRequestException) {
+        }
+
+        $logs = json_encode($this->logs, \JSON_THROW_ON_ERROR);
+        self::assertStringNotContainsString('SECRET', $logs);
+        $error = $this->getErrorLog();
+        self::assertIsArray($error['request_options']);
+        self::assertSame(['Authorization' => '***', 'X-Api-Key' => '***'], $error['request_options']['headers']);
+        self::assertSame(['client_id' => 'my-client', 'client_secret' => '***'], $error['request_options']['data']);
     }
 
     public function testNonArrayInputIsRejected(): void

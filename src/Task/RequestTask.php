@@ -19,6 +19,7 @@ use CleverAge\ProcessBundle\Model\ProcessState;
 use CleverAge\RestProcessBundle\Exception\MissingClientException;
 use CleverAge\RestProcessBundle\Exception\RestRequestException;
 use CleverAge\RestProcessBundle\Exception\UnexpectedValueException;
+use CleverAge\RestProcessBundle\Logger\SensitiveDataMasker;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\OptionsResolver\Exception\AccessException;
@@ -78,7 +79,7 @@ class RequestTask extends AbstractConfigurableTask
 
         $this->logger->debug(
             "Sending request {$requestOptions['method']} to '{$requestOptions['url']}'",
-            ['requestOptions' => $requestOptions]
+            ['requestOptions' => SensitiveDataMasker::mask($requestOptions)]
         );
         $response = $this->registry->getClient($options['client'])->call($requestOptions);
 
@@ -88,9 +89,9 @@ class RequestTask extends AbstractConfigurableTask
                 $this->logger->debug(
                     "Response received from '{$requestOptions['url']}'",
                     [
-                        'requestOptions' => $requestOptions,
+                        'requestOptions' => SensitiveDataMasker::mask($requestOptions),
                         'status_code' => $statusCode,
-                        'headers' => $response->getHeaders(false),
+                        'headers' => SensitiveDataMasker::mask($response->getHeaders(false)),
                         'content' => $response->getContent(false),
                     ]
                 );
@@ -115,8 +116,8 @@ class RequestTask extends AbstractConfigurableTask
                 'REST request failed',
                 [
                     'client' => $options['client'],
-                    'options' => $options,
-                    'request_options' => $requestOptions,
+                    'options' => SensitiveDataMasker::mask($options),
+                    'request_options' => SensitiveDataMasker::mask($requestOptions),
                     'message' => $e->getMessage(),
                     ...$this->getResponseDetails($response),
                 ]
@@ -129,13 +130,13 @@ class RequestTask extends AbstractConfigurableTask
     /**
      * Headers and body of the response, for the error log: not available after a transport error.
      *
-     * @return array{raw_headers?: array<string, list<string>>, raw_body?: string}
+     * @return array{raw_headers?: array<mixed>, raw_body?: string}
      */
     protected function getResponseDetails(ResponseInterface $response): array
     {
         try {
             return [
-                'raw_headers' => $response->getHeaders(false),
+                'raw_headers' => SensitiveDataMasker::mask($response->getHeaders(false)),
                 'raw_body' => $response->getContent(false),
             ];
         } catch (TransportExceptionInterface) {
