@@ -97,6 +97,12 @@ an `UnexpectedValueException` giving the ids of both services
 (`Client <code> is already defined by service "<id>", cannot register service "<id>"`) when the registry is
 instantiated.
 
+A client service is shared: it keeps its state from one process execution to the next as long as the PHP process runs,
+e.g. in a long-running worker (Messenger, [ui-process-bundle](https://github.com/cleverage/ui-process-bundle)). A base
+URI changed with `setUri()` (the bundle never calls it) is used by every following request, of every process, and is not
+reset between two executions. Give the values specific to a request (`url`, `url_parameters`, `headers`, `data`...) with
+the [request options](#request-options) of the task rather than by changing the client.
+
 Implementing a client
 ---------------------
 
@@ -106,7 +112,7 @@ A client must implement `ClientInterface`:
 |-------------------------------------------------------|----------------------------------------------------------------------------------------------|
 | `getCode(): string`                                   | Code of the client, used by the `client` option of the task. Must be unique                  |
 | `geUri(): string`                                     | **Deprecated** (misspelled): base URI, use `getUri()` of the default `Client`                |
-| `setUri(string $uri): void`                           | Change the base URI                                                                          |
+| `setUri(string $uri): void`                           | Change the base URI, for every following request (see [Registration](#registration))        |
 | `call(array $options = []): ResponseInterface`        | Send the request described by the request options, return a Symfony HttpClient response      |
 
 The simplest way is to extend the default `Client` and override one of its protected methods:
