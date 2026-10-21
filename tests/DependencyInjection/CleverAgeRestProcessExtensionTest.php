@@ -119,7 +119,7 @@ class CleverAgeRestProcessExtensionTest extends TestCase
             (new CleverAgeRestProcessExtension())->load([[], ['foo' => true], ['bar' => 1, 'foo' => false]], new ContainerBuilder());
         });
 
-        self::assertSame(['Since cleverage/rest-process-bundle 3.3: Configuring "clever_age_rest_process" is deprecated, the bundle has no configuration: the keys "foo", "bar" are ignored. They will be rejected in 4.0.'], $deprecations);
+        self::assertSame(['Since cleverage/rest-process-bundle 3.3: Configuring "cleverage_rest_process" is deprecated, the bundle has no configuration: the keys "foo", "bar" are ignored. They will be rejected in 4.0.'], $deprecations);
     }
 
     public function testNoDeprecationWithoutConfigurationKey(): void
@@ -136,7 +136,7 @@ class CleverAgeRestProcessExtensionTest extends TestCase
         $configuration = (new CleverAgeRestProcessExtension())->getConfiguration([], new ContainerBuilder());
 
         self::assertInstanceOf(Configuration::class, $configuration);
-        self::assertSame('clever_age_rest_process', $configuration->getConfigTreeBuilder()->buildTree()->getName());
+        self::assertSame('cleverage_rest_process', $configuration->getConfigTreeBuilder()->buildTree()->getName());
     }
 
     /**

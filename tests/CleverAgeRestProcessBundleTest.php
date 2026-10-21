@@ -15,6 +15,7 @@ namespace CleverAge\RestProcessBundle\Tests;
 
 use CleverAge\RestProcessBundle\CleverAgeRestProcessBundle;
 use CleverAge\RestProcessBundle\Client\Client;
+use CleverAge\RestProcessBundle\DependencyInjection\CleverAgeRestProcessExtension;
 use CleverAge\RestProcessBundle\DependencyInjection\Compiler\RegisterClientsPass;
 use CleverAge\RestProcessBundle\Registry\ClientRegistry;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -26,6 +27,7 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\HttpClient\MockHttpClient;
 
 #[CoversClass(CleverAgeRestProcessBundle::class)]
+#[UsesClass(CleverAgeRestProcessExtension::class)]
 #[UsesClass(ClientRegistry::class)]
 #[UsesClass(Client::class)]
 #[UsesClass(RegisterClientsPass::class)]
@@ -56,5 +58,16 @@ class CleverAgeRestProcessBundleTest extends TestCase
         /** @var ClientRegistry $registry */
         $registry = $container->get('cleverage_rest_process.registry.client');
         self::assertSame('api', $registry->getClient('api')->getCode());
+    }
+
+    public function testExtensionAlias(): void
+    {
+        $bundle = new CleverAgeRestProcessBundle();
+        $extension = $bundle->getContainerExtension();
+
+        self::assertInstanceOf(CleverAgeRestProcessExtension::class, $extension);
+        self::assertSame('cleverage_rest_process', $extension->getAlias());
+        // Built once
+        self::assertSame($extension, $bundle->getContainerExtension());
     }
 }

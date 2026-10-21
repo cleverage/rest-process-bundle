@@ -13,8 +13,10 @@ declare(strict_types=1);
 
 namespace CleverAge\RestProcessBundle;
 
+use CleverAge\RestProcessBundle\DependencyInjection\CleverAgeRestProcessExtension;
 use CleverAge\RestProcessBundle\DependencyInjection\Compiler\RegisterClientsPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -28,6 +30,19 @@ class CleverAgeRestProcessBundle extends Bundle
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new RegisterClientsPass());
+    }
+
+    /**
+     * The alias of the extension, "cleverage_rest_process", is not the one guessed from the bundle name.
+     */
+    #[\Override]
+    public function getContainerExtension(): ExtensionInterface
+    {
+        if (!$this->extension instanceof ExtensionInterface) {
+            $this->extension = new CleverAgeRestProcessExtension();
+        }
+
+        return $this->extension;
     }
 
     #[\Override]

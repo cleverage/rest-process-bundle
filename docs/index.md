@@ -60,7 +60,7 @@ fetch:
     url_parameters: { codePostal: '{{ codePostal }}' }
 ```
 
-No option can be configured under `clever_age_rest_process`: a key there is ignored. Configuring one is deprecated since 3.3 (an `E_USER_DEPRECATED` error is triggered when the container is compiled), the keys will be rejected in 4.0.
+No option can be configured under `cleverage_rest_process`: a key there is ignored. Configuring one is deprecated since 3.3 (an `E_USER_DEPRECATED` error is triggered when the container is compiled), the keys will be rejected in 4.0.
 
 ## Documentation
 
