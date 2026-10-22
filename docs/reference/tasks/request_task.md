@@ -171,5 +171,9 @@ Notes
   disabled or exceeded.
 * A transport error (DNS failure, timeout...) makes the task fail as well: it is logged (`REST request failed`, without
   the response headers and body) then thrown. An unknown `method` makes the task fail too.
+* The logs (request sent, `log_response`, failure) mask the credentials: the values of the headers, `data` and
+  `url_parameters` keys whose name contains `authorization`, `cookie`, `password`, `secret`, `token`, `api_key`,
+  `signature`, `credential` or `session` (case-insensitive) are replaced by `***`, as are the `Set-Cookie` headers of
+  the response. A `data` given as a string (e.g. an encoded form body) is logged as is, and so is the response body.
 * A `client` that is not registered throws a `CleverAge\RestProcessBundle\Exception\MissingClientException`
   (`No rest client with code : <code>`) on the first execution of the task.
