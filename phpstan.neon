@@ -3,3 +3,9 @@ parameters:
     paths:
         - src
         - tests
+    ignoreErrors:
+        # The public API keeps its empty default value (BC), while the PHPDoc describes the resolved options
+        - identifier: parameter.defaultValue
+          paths:
+              - src/Client/Client.php
+              - src/Client/ClientInterface.php
