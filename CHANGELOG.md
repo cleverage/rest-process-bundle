@@ -1,6 +1,9 @@
 Latest
 ------
 
+v3.3.1
+------
+
 ### Fixes
 * [GHSA-fq22-3c2c-cv5p](https://github.com/cleverage/rest-process-bundle/security/advisories/GHSA-fq22-3c2c-cv5p) `RequestTask`: mask the credentials in the logs (request sent, `log_response`, failure): the values of the headers, `data` and `url_parameters` keys whose name contains `authorization`, `cookie`, `password`, `secret`, `token`, `api_key`, `signature`, `credential` or `session`, and the `Set-Cookie` response headers, are replaced by `***`.
 
