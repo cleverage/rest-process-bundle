@@ -1,6 +1,9 @@
 Latest
 ------
 
+### Changes
+* [#84](https://github.com/cleverage/rest-process-bundle/issues/84) Documentation: working `#[AsRestClient]` example, exceptions of the bundle in the reference pages.
+
 v3.3.1
 ------
 

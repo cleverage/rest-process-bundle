@@ -51,7 +51,7 @@ The request is then built this way:
 - **URL**: `<base URI>/<url>`, the leading `/` of `url` being removed. Then each `{key}` of `url_parameters` is
   replaced by its value, converted to a string and encoded with
   [`rawurlencode()`](https://www.php.net/manual/en/function.rawurlencode.php) (a non-scalar value throws an
-  `\UnexpectedValueException`).
+  `UnexpectedValueException`).
 - **Method**: must be one of `HEAD`, `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`, `TRACE`, `PATCH` (case-sensitive),
   otherwise a `CleverAge\RestProcessBundle\Exception\RestRequestException` (`<method> is not an HTTP method`) is thrown.
 - **Headers**: `headers`, plus `Content-Type: <sends>` and `Accept: <expects>` when these options are not empty
@@ -84,10 +84,17 @@ The `#[AsRestClient]` attribute adds the same tag to an autoconfigured service:
 ```php
 use CleverAge\RestProcessBundle\Attribute\AsRestClient;
 use CleverAge\RestProcessBundle\Client\Client;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsRestClient(code: 'my_api')]
 class MyApiClient extends Client
 {
+    public function __construct(HttpClientInterface $httpClient, LoggerInterface $logger)
+    {
+        // The code must be the one of the attribute
+        parent::__construct($httpClient, $logger, 'my_api', 'https://api.example.com');
+    }
 }
 ```
 

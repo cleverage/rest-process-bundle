@@ -47,6 +47,9 @@ services:
       - { name: cleverage.rest.client, code: apicarto_ign }
 ```
 
+With autoconfiguration, the `#[AsRestClient(code: 'apicarto_ign')]` attribute on a class extending `Client` adds the
+same tag (see [REST client](reference/client.md)).
+
 The [RequestTask](reference/tasks/request_task.md) then references this client by its code:
 
 ```yaml
@@ -72,3 +75,10 @@ No option can be configured under `cleverage_rest_process`: a key there is ignor
     - Tasks
         - [RequestTask](reference/tasks/request_task.md)
 - [CleverAge/ProcessBundle documentation](https://github.com/cleverage/process-bundle/blob/main/docs/index.md)
+
+## Exceptions
+
+The exceptions named without namespace in the reference pages (e.g. `UnexpectedValueException`) are the ones of the
+bundle, `CleverAge\RestProcessBundle\Exception\*`: they extend the SPL exceptions of the same name and implement
+`CleverAge\ProcessBundle\Exception\ProcessExceptionInterface`, so that all the errors of the process bundles can be
+caught at once.
