@@ -18,7 +18,7 @@ Accepted inputs
 `array` or empty value (`null`, `[]`...): request options overriding the task options (shallow merge, the input wins).
 Allowed keys are `url`, `method`, `headers`, `url_parameters`, `sends`, `expects` and `data`: any other key is passed to
 the client, which rejects it (the default client throws an `UndefinedOptionsException`). Any other non-empty input
-(e.g. a `string`) throws an `\UnexpectedValueException`.
+(e.g. a `string`) throws an `UnexpectedValueException`.
 
 Possible outputs
 ----------------
