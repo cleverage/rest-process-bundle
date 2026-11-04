@@ -49,7 +49,7 @@ class Client implements ClientInterface
     }
 
     /**
-     * @deprecated typo, use getUri() instead
+     * @deprecated since 3.2, typo, use getUri() instead
      */
     public function geUri(): string
     {
