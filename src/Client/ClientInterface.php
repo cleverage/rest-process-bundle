@@ -26,7 +26,7 @@ interface ClientInterface
     public function getCode(): string;
 
     /**
-     * @deprecated typo, implement and use getUri() instead (it will replace this method in the next major version)
+     * @deprecated since 3.2, typo, implement and use getUri() instead (it will replace this method in the next major version)
      */
     public function geUri(): string;
 
